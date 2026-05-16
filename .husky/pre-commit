@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Reserved for future fast checks (lint, typecheck on staged files).
+# The [local]-vs-blocklist check lives in .husky/commit-msg, because the
+# commit message isn't available at pre-commit time.
+exit 0

@@ -1,0 +1,68 @@
+#!/usr/bin/env sh
+# Block commits whose message starts with "[local]" if the staged diff
+# touches any path listed in .localllm-blocklist. The local LLM is the
+# intended author of "[local]" commits, and those paths are reserved for
+# the senior reviewer (Claude Code).
+
+set -e
+
+commit_msg_file="$1"
+first_line="$(head -n1 "$commit_msg_file")"
+
+case "$first_line" in
+  "[local]"*) ;;
+  *) exit 0 ;;
+esac
+
+repo_root="$(git rev-parse --show-toplevel)"
+blocklist_file="$repo_root/.localllm-blocklist"
+
+if [ ! -f "$blocklist_file" ]; then
+  exit 0
+fi
+
+# Staged paths in this commit.
+staged="$(git diff --cached --name-only --diff-filter=ACMRTD)"
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+violations=""
+while IFS= read -r pattern; do
+  # Strip comments and blank lines.
+  case "$pattern" in
+    "#"*|"") continue ;;
+  esac
+  # Trim trailing whitespace.
+  pattern="$(printf '%s' "$pattern" | sed 's/[[:space:]]*$//')"
+  [ -z "$pattern" ] && continue
+
+  while IFS= read -r path; do
+    case "$pattern" in
+      */)
+        # Directory rule: match any file under it.
+        case "$path" in
+          "$pattern"*) violations="$violations\n  $path  (matches $pattern)" ;;
+        esac
+        ;;
+      *)
+        # Exact file rule.
+        if [ "$path" = "$pattern" ]; then
+          violations="$violations\n  $path  (matches $pattern)"
+        fi
+        ;;
+    esac
+  done <<EOF
+$staged
+EOF
+done < "$blocklist_file"
+
+if [ -n "$violations" ]; then
+  printf '\n[local] commits are not allowed to touch blocklist paths.\n' >&2
+  printf 'Violations:%b\n\n' "$violations" >&2
+  printf 'Either remove these files from the commit, drop the [local] prefix,\n' >&2
+  printf 'or have Claude Code take over the change.\n' >&2
+  exit 1
+fi
+
+exit 0

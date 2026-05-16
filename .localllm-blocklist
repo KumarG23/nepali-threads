@@ -1,0 +1,19 @@
+# Paths the local LLM is not allowed to edit.
+# Mirrors the "Files you must NOT touch" section in LLM_PROJECT_CONTEXT.md.
+# Pre-commit hook (.husky/pre-commit) blocks commits whose message starts
+# with [local] and whose diff touches any of these paths.
+
+src/app/api/webhooks/
+src/app/api/auth/
+src/app/api/checkout/
+src/lib/stripe/
+src/lib/gift-cards/
+src/lib/inventory.ts
+src/collections/Users.ts
+src/collections/Customers.ts
+src/payload.config.ts
+migrations/
+.env
+.env.local
+.env.production
+.env.example
