@@ -77,9 +77,13 @@ If you see a `.localllm-blocklist` file in the repo root, treat it as authoritat
 
 Use this as the source of truth when writing collections or types that touch these models. Do not invent fields. If you need a field that isn't here, output a TODO comment.
 
-**Products:** name, slug, description (rich text), category (relation), basePrice, featured (boolean), status (enum: draft/published/archived), seoTitle, seoDescription, seoImage
+**Products:** name, slug, description (rich text), category (relation), basePrice, featured (boolean), status (enum: draft/published/archived), images (array — required on the product itself), seoTitle, seoDescription, seoImage
 
-**ProductVariants:** product (relation), size, color, sku, price (optional, overrides product basePrice), inventoryCount, images (array)
+**ProductVariants:** *(OPTIONAL — most products are one-size-fits-all and have zero variants)* product (relation), size, color, sku, price (optional, overrides product basePrice), inventoryCount, images (array, optional — falls back to product images)
+
+When rendering a product page:
+- If the product has zero variants → show `basePrice` and an "Add to cart" button, **no size/variant selector**. This is the default. "One size, fits everyone" is a brand pillar — don't add an awkward "Default" dropdown.
+- If the product has one or more variants → render the variant selector and use the chosen variant's price/SKU/inventory.
 
 **Categories:** name, slug, description, image, parent (self-relation, optional)
 
@@ -94,6 +98,26 @@ Use this as the source of truth when writing collections or types that touch the
 **Pages:** slug, title, blocks (array of rich content)
 
 **Users:** *(admin only, auth-enabled — DO NOT modify)* email, name, role (enum: super-admin/admin/viewer)
+
+---
+
+## Admin UX conventions
+
+The Payload admin (`/admin`) will be used primarily by Neal's dad and sister — non-technical people running a family business. Optimize every content collection for them.
+
+When scaffolding a collection, apply these rules unless the task says otherwise:
+
+- **Plain-English `label`s.** Field labels should read like a form a human would fill out, not a database column. `"Price (USD)"` not `"Base Price"`. `"Photos"` not `"Images Array"`. `"Show on homepage"` not `"Featured"`.
+- **`admin.description` help text** on any field whose purpose isn't obvious from its label. Keep it to one sentence. Example: on a `slug` field, `"Auto-fills from the name. Only edit if you know what you're doing."`
+- **Group SEO fields into a collapsed tab** (`type: 'tabs'`, with the SEO tab `description: 'Optional — leave blank if you're not sure'`). Don't put SEO fields inline with primary content.
+- **Sensible defaults.** `status` defaults to `"draft"`. New products are never published by accident.
+- **Auto-slug from name** using `@payloadcms/plugin-seo` slug helper or a small `beforeChange` hook. The slug field is read-only in the admin by default; admins can click an "Edit" toggle if they need to override.
+- **Field order** on the primary tab: Name → Description → Price → Category → Photos → everything else. Put the things they fill in most often at the top.
+- **Required fields** should be required at the schema level (`required: true`) so the admin form blocks save and shows a clear error inline — don't rely on the admin spotting a missing field on a published page.
+- **Avoid jargon in option labels.** `status` options: `"Draft"`, `"Published"`, `"Archived"` (capitalize for the dropdown, lowercase for the stored value).
+- **For arrays of photos**, set `admin.description: 'Drag to reorder. First photo is the main image.'`
+
+These rules apply to: `Products`, `Categories`, `Pages`, `GiftCards` (admin view), `ProductVariants`. They do **not** apply to `Users` or `Customers` (auth-only, not edited as content) or to internal system collections.
 
 ---
 
