@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
 # Block commits whose message starts with "[local]" if the staged diff
-# touches any path listed in .localllm-blocklist. The local LLM is the
-# intended author of "[local]" commits, and those paths are reserved for
-# the senior reviewer (Claude Code).
+# touches any path matching .localllm-blocklist. The local LLM is the
+# intended author of "[local]" commits, and blocklisted paths are
+# reserved for the senior reviewer (Claude Code).
+#
+# Blocklist pattern syntax:
+#   foo/bar.ts   — exact file
+#   foo/bar/**   — anything under foo/bar/, recursively
 
 set -e
 
@@ -21,7 +25,6 @@ if [ ! -f "$blocklist_file" ]; then
   exit 0
 fi
 
-# Staged paths in this commit.
 staged="$(git diff --cached --name-only --diff-filter=ACMRTD)"
 if [ -z "$staged" ]; then
   exit 0
@@ -29,26 +32,26 @@ fi
 
 violations=""
 while IFS= read -r pattern; do
-  # Strip comments and blank lines.
   case "$pattern" in
     "#"*|"") continue ;;
   esac
-  # Trim trailing whitespace.
   pattern="$(printf '%s' "$pattern" | sed 's/[[:space:]]*$//')"
   [ -z "$pattern" ] && continue
 
   while IFS= read -r path; do
     case "$pattern" in
-      */)
-        # Directory rule: match any file under it.
+      */\*\*)
+        # Recursive glob: strip trailing /** and prefix-match.
+        prefix="${pattern%/\*\*}/"
         case "$path" in
-          "$pattern"*) violations="$violations\n  $path  (matches $pattern)" ;;
+          "$prefix"*) violations="$violations
+  $path  (matches $pattern)" ;;
         esac
         ;;
       *)
-        # Exact file rule.
         if [ "$path" = "$pattern" ]; then
-          violations="$violations\n  $path  (matches $pattern)"
+          violations="$violations
+  $path  (matches $pattern)"
         fi
         ;;
     esac
@@ -59,7 +62,7 @@ done < "$blocklist_file"
 
 if [ -n "$violations" ]; then
   printf '\n[local] commits are not allowed to touch blocklist paths.\n' >&2
-  printf 'Violations:%b\n\n' "$violations" >&2
+  printf 'Violations:%s\n\n' "$violations" >&2
   printf 'Either remove these files from the commit, drop the [local] prefix,\n' >&2
   printf 'or have Claude Code take over the change.\n' >&2
   exit 1

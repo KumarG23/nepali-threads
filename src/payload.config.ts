@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
@@ -27,14 +28,29 @@ export default buildConfig({
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
   db: postgresAdapter({
+    // Neon connection string includes `sslmode=require`, so node-postgres
+    // negotiates TLS automatically — no extra ssl block needed.
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },
   }),
   sharp,
   plugins: [
-    // Storage (R2 via @payloadcms/storage-s3) is wired in Phase 1 once
-    // the bucket exists. Keep the import in package.json so the local LLM
-    // can scaffold it later.
+    s3Storage({
+      collections: {
+        media: true,
+      },
+      bucket: process.env.S3_BUCKET || "",
+      config: {
+        endpoint: process.env.S3_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+        },
+        region: process.env.S3_REGION || "auto",
+        // R2 requires path-style URLs (virtual-host style isn't supported).
+        forcePathStyle: true,
+      },
+    }),
   ],
 });
