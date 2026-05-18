@@ -15,6 +15,9 @@ src/lib/gift-cards/**
 src/lib/inventory.ts
 src/collections/Users.ts
 src/collections/Customers.ts
+src/collections/Orders.ts
+src/collections/GiftCards.ts
+src/collections/GiftCardRedemptions.ts
 src/payload.config.ts
 migrations/**
 .env

@@ -8,7 +8,13 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
+import { Customers } from "@/collections/Customers";
+import { GiftCardRedemptions } from "@/collections/GiftCardRedemptions";
+import { GiftCards } from "@/collections/GiftCards";
 import { Media } from "@/collections/Media";
+import { Orders } from "@/collections/Orders";
+import { ProductVariants } from "@/collections/ProductVariants";
+import { Products } from "@/collections/Products";
 import { Users } from "@/collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
@@ -21,7 +27,16 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [
+    Users,
+    Customers,
+    Media,
+    Products,
+    ProductVariants,
+    Orders,
+    GiftCards,
+    GiftCardRedemptions,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
