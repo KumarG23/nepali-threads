@@ -46,8 +46,3 @@ next-env.d.ts
 .idea/
 .vscode/
 Thumbs.db
-
-# local-only reference asset library (2.1 GB of iPhone originals from the
-# product shoot). Lives in public/ for convenience but must NOT ship to
-# Vercel or get committed. See product-migration-reference.md.
-public/migrated-product-images/store photos/

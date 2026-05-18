@@ -11,7 +11,7 @@
 >
 > Many live images are `.webp` re-renders that don't exist in the local migration folder; for those you'll want to either download from the live URL or find the original in iCloud by the timestamp.
 >
-> **Source photo library:** `public/migrated-product-images/store photos/` holds **258 iPhone originals** named `IMG_0025.JPG` through `IMG_0283.JPG` (~2.1 GB total). This appears to be the full unedited shoot the Facetune-edited product images were derived from. The folder is gitignored and won't ship to Vercel, but it's there for you locally as your reference set when picking the best shot per product. iPhone `IMG_xxxx` numbers are roughly chronological, so a Facetune timestamp of `Jun 11, 2024 at 18:51:27` should correspond to an IMG within a few numbers of the photos taken around that time — check the EXIF dates if you want exact matches.
+> **Source photo library:** `~/code/nepali-threads-assets/store-photos/` (outside this repo) holds **258 iPhone originals** named `IMG_0025.JPG` through `IMG_0283.JPG` (~2.1 GB total). This appears to be the full unedited shoot the Facetune-edited product images were derived from. It lives outside the repo so it's never committed or shipped, but is on the same machine for local reference when picking the best shot per product. iPhone `IMG_xxxx` numbers are roughly chronological, so a Facetune timestamp of `Jun 11, 2024 at 18:51:27` should correspond to an IMG within a few numbers of the photos taken around that time — check the EXIF dates if you want exact matches.
 
 ---
 
@@ -362,7 +362,7 @@ These exist in `public/migrated-product-images/` but no live product references 
 - `Facetune_11-06-2024-19-05-12.jpeg` — Facetune saved Jun 11, 2024 at 19:05:12
 - `Facetune_11-06-2024-19-07-20.jpeg` — Facetune saved Jun 11, 2024 at 19:07:20
 - `Facetune_11-06-2024-19-16-28.jpeg` — Facetune saved Jun 11, 2024 at 19:16:28
-- `IMG_0030.JPG` — also present in the `store photos/` source library
+- `IMG_0030.JPG` — also present in the source photo library at `~/code/nepali-threads-assets/store-photos/`
 - `kumar-profile.png` — appears to be a profile portrait, not a product photo
 
-*(The `store photos/` directory is documented in the header section — not listed here.)*
+*(The source photo library lives outside this repo — see the header section.)*
