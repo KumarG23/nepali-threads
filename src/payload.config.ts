@@ -51,6 +51,13 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },
+    // Auto-sync schema on boot. Payload defaults this to true in dev and
+    // false in production; we force it on through Phase 3 because the Neon
+    // DB starts empty and `npx payload migrate` doesn't resolve the @/*
+    // alias (same issue as generate:importmap). Flip OFF in Phase 4 before
+    // launch — `push: true` lets the running app mutate schema, which is
+    // unsafe once real customer data exists.
+    push: true,
   }),
   sharp,
   plugins: [
