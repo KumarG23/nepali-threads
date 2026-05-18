@@ -37,6 +37,7 @@ When uncertain, output a TODO comment explaining what you're unsure about. Do no
 
 ## Code conventions
 
+- **Quotes:** Double quotes for all strings — `"foo"`, not `'foo'`. Applies to imports, string literals, JSX attribute values. Don't mix.
 - **Imports order:** (1) external packages, (2) `@/` aliased internal imports, (3) relative imports. Blank line between groups.
 - **Path alias:** `@/` maps to `src/`.
 - **Naming:**
@@ -44,11 +45,36 @@ When uncertain, output a TODO comment explaining what you're unsure about. Do no
   - Hooks: `useThing.ts`
   - Utilities: `kebab-case.ts`
   - Payload collections: `PascalCase.ts` matching the slug
-- **Exports:** Default export for React components and Payload collections. Named exports for utilities.
+- **Exports:**
+  - **Utilities:** named exports only.
+  - **React components and Payload collections:** export BOTH a named `const` AND a default. The named export is what other modules import; the default keeps Payload/Next happy. Example:
+    ```ts
+    export const Categories: CollectionConfig = { ... };
+    export default Categories;
+    ```
 - **Comments:** JSDoc on exported functions. Inline comments only when the *why* isn't obvious.
 - **Error handling:** Server-side: throw typed errors, let Next.js error boundaries catch. Client-side: surface plain-English messages, never raw exception text.
 - **Async:** `async/await` only. No `.then()` chains.
 - **Accessibility:** Every interactive element has an accessible name. `<button>` not `<div onClick>`. Forms have associated labels.
+
+---
+
+## Payload-specific conventions
+
+This project runs **Payload 3.x**. Several APIs changed from Payload 2 and you may have seen older patterns in training data — follow these explicitly.
+
+- **Type imports come from `"payload"`, not `"payload/types"`.** The `"payload/types"` path is Payload 2 and is **not** resolvable in this project. Always:
+  ```ts
+  import type { CollectionConfig, Field } from "payload";
+  ```
+- **Single-target relations use a string `relationTo`:**
+  ```ts
+  { name: "parent", type: "relationship", relationTo: "categories" }
+  ```
+  The array form (`relationTo: ["categories"]`) is the **polymorphic** syntax — it's only for fields that can point at multiple different collections, and it changes the on-disk storage to `{ value, relationTo }` objects. If you only target one collection, use the string. Getting this wrong silently breaks downstream queries.
+- **Upload fields:** `type: "upload"`, `relationTo: "media"` (string — same rule).
+- **Lexical rich text:** `import { lexicalEditor } from "@payloadcms/richtext-lexical"` and set `editor: lexicalEditor()` on the rich-text field config.
+- **Custom admin components:** reference by import-path string with optional `#exportName` suffix. The string must also appear as a key in `src/app/(payload)/admin/importMap.js` — flag it in reviewer notes if you add a new component reference; the import map is hand-maintained.
 
 ---
 
