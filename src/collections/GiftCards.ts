@@ -47,7 +47,12 @@ export const GiftCards: CollectionConfig = {
       min: 0,
       label: "Initial value (USD)",
       admin: {
-        description: "The amount the gift card was purchased for.",
+        description:
+          "The amount the gift card was purchased for. Stored as integer cents.",
+        components: {
+          Field: "@/components/admin/MoneyField",
+          Cell: "@/components/admin/MoneyField#MoneyCell",
+        },
       },
     },
     {
@@ -60,6 +65,10 @@ export const GiftCards: CollectionConfig = {
         description:
           "Remaining balance. Decremented by the redemption system — don't edit by hand.",
         readOnly: true,
+        components: {
+          Field: "@/components/admin/MoneyField",
+          Cell: "@/components/admin/MoneyField#MoneyCell",
+        },
       },
     },
     {

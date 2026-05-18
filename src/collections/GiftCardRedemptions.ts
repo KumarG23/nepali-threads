@@ -47,6 +47,13 @@ export const GiftCardRedemptions: CollectionConfig = {
       required: true,
       min: 0,
       label: "Amount used (USD)",
+      admin: {
+        description: "Stored as integer cents.",
+        components: {
+          Field: "@/components/admin/MoneyField",
+          Cell: "@/components/admin/MoneyField#MoneyCell",
+        },
+      },
     },
     // The schema lists "timestamp" — Payload auto-emits createdAt on
     // every collection, so we don't add a redundant field. Treat

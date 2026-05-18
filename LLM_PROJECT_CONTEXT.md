@@ -121,6 +121,35 @@ These rules apply to: `Products`, `Categories`, `Pages`, `GiftCards` (admin view
 
 ---
 
+## Money fields
+
+All monetary values are stored as **integer cents** (e.g. $25.00 → `2500`). This matches Stripe's API and avoids floating-point precision bugs.
+
+For any `type: 'number'` field that represents money, attach the `MoneyField` admin component so dad/sister see and enter dollars while the DB stores cents:
+
+```ts
+{
+  name: 'basePrice',
+  type: 'number',
+  required: true,
+  min: 0,
+  label: 'Price (USD)',
+  admin: {
+    description: 'Stored as integer cents.',
+    components: {
+      Field: '@/components/admin/MoneyField',
+      Cell: '@/components/admin/MoneyField#MoneyCell',
+    },
+  },
+}
+```
+
+Fields that must use this pattern: `Products.basePrice`, `ProductVariants.price`, `Orders.subtotal` / `tax` / `shipping` / `giftCardDiscount` / `total`, `Orders.lineItems.priceAtPurchase`, `GiftCards.initialValue` / `currentBalance`, `GiftCardRedemptions.amountUsed`.
+
+API consumers (storefront, webhooks) see cents directly — no conversion on the wire. The MoneyField component is admin-UI-only and is in the blocklist; don't reimplement the conversion math elsewhere.
+
+---
+
 ## Task input format
 
 You will receive tasks shaped like this:

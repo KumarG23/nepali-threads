@@ -1,6 +1,18 @@
 // LOCAL-LLM: DO NOT EDIT
 import type { CollectionConfig, Field } from "payload";
 
+// Money fields are stored as INTEGER CENTS. MoneyField / MoneyCell handle
+// the dollar ↔ cents conversion in the admin UI only — API responses and
+// webhook writes use cents directly.
+const moneyField = {
+  admin: {
+    components: {
+      Field: "@/components/admin/MoneyField",
+      Cell: "@/components/admin/MoneyField#MoneyCell",
+    },
+  },
+} as const;
+
 // Reusable address shape for shippingAddress / billingAddress on an
 // order. Kept inline (not factored out) so the schema is greppable
 // per-file. If you change the shape, also update Customers.addresses.
@@ -102,16 +114,20 @@ export const Orders: CollectionConfig = {
           required: true,
           min: 0,
           label: "Price at purchase (USD)",
-          // TODO: consider storing money as integer cents for precision.
+          admin: {
+            ...moneyField.admin,
+            description:
+              "What the customer paid per unit. Stored as integer cents.",
+          },
         },
       ],
     },
     {
       type: "row",
       fields: [
-        { name: "subtotal", type: "number", required: true, min: 0, label: "Subtotal (USD)" },
-        { name: "tax", type: "number", required: true, min: 0, defaultValue: 0, label: "Tax (USD)" },
-        { name: "shipping", type: "number", required: true, min: 0, defaultValue: 0, label: "Shipping (USD)" },
+        { name: "subtotal", type: "number", required: true, min: 0, label: "Subtotal (USD)", admin: moneyField.admin },
+        { name: "tax", type: "number", required: true, min: 0, defaultValue: 0, label: "Tax (USD)", admin: moneyField.admin },
+        { name: "shipping", type: "number", required: true, min: 0, defaultValue: 0, label: "Shipping (USD)", admin: moneyField.admin },
       ],
     },
     {
@@ -124,8 +140,9 @@ export const Orders: CollectionConfig = {
           min: 0,
           defaultValue: 0,
           label: "Gift card discount (USD)",
+          admin: moneyField.admin,
         },
-        { name: "total", type: "number", required: true, min: 0, label: "Total (USD)" },
+        { name: "total", type: "number", required: true, min: 0, label: "Total (USD)", admin: moneyField.admin },
       ],
     },
     {
