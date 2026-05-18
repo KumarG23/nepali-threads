@@ -46,8 +46,9 @@ export default buildConfig({
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
   db: postgresAdapter({
-    // Neon connection string includes `sslmode=require`, so node-postgres
-    // negotiates TLS automatically — no extra ssl block needed.
+    // Neon connection string includes `sslmode=verify-full`, so node-postgres
+    // negotiates TLS automatically and validates the cert chain + hostname
+    // against Node's bundled CA — no extra ssl block needed.
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },
