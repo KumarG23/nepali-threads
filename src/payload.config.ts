@@ -1,4 +1,11 @@
 // LOCAL-LLM: DO NOT EDIT
+//
+// NOTE: Imports in this file are RELATIVE (`./collections/X`), not aliased
+// (`@/collections/X`). The Payload CLI (`migrate`, `generate:importmap`,
+// etc.) loads this config outside Next.js's bundler and cannot resolve the
+// `@/*` tsconfig path alias. The rest of the codebase should continue
+// using `@/*` — this file is the exception.
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -8,15 +15,15 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
-import { Categories } from "@/collections/Categories";
-import { Customers } from "@/collections/Customers";
-import { GiftCardRedemptions } from "@/collections/GiftCardRedemptions";
-import { GiftCards } from "@/collections/GiftCards";
-import { Media } from "@/collections/Media";
-import { Orders } from "@/collections/Orders";
-import { ProductVariants } from "@/collections/ProductVariants";
-import { Products } from "@/collections/Products";
-import { Users } from "@/collections/Users";
+import { Categories } from "./collections/Categories";
+import { Customers } from "./collections/Customers";
+import { GiftCardRedemptions } from "./collections/GiftCardRedemptions";
+import { GiftCards } from "./collections/GiftCards";
+import { Media } from "./collections/Media";
+import { Orders } from "./collections/Orders";
+import { ProductVariants } from "./collections/ProductVariants";
+import { Products } from "./collections/Products";
+import { Users } from "./collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -52,13 +59,6 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || "",
     },
-    // Auto-sync schema on boot. Payload defaults this to true in dev and
-    // false in production; we force it on through Phase 3 because the Neon
-    // DB starts empty and `npx payload migrate` doesn't resolve the @/*
-    // alias (same issue as generate:importmap). Flip OFF in Phase 4 before
-    // launch — `push: true` lets the running app mutate schema, which is
-    // unsafe once real customer data exists.
-    push: true,
   }),
   sharp,
   plugins: [
