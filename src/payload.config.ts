@@ -8,6 +8,7 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
+import { Categories } from "@/collections/Categories";
 import { Customers } from "@/collections/Customers";
 import { GiftCardRedemptions } from "@/collections/GiftCardRedemptions";
 import { GiftCards } from "@/collections/GiftCards";
@@ -31,6 +32,7 @@ export default buildConfig({
     Users,
     Customers,
     Media,
+    Categories,
     Products,
     ProductVariants,
     Orders,
