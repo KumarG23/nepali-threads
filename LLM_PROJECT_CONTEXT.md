@@ -78,6 +78,125 @@ This project runs **Payload 3.x**. Several APIs changed from Payload 2 and you m
 
 ---
 
+## Reference implementation — `Categories` collection
+
+This is what a finished Phase 1 collection looks like in this repo, post-review. **Match this shape exactly** when scaffolding new collections — copy the structure, swap the field list. Patterns to mimic: import path, label block, access block, slug helper + `beforeChange` hook, named-and-default export, plain-English `admin.description` on every non-obvious field.
+
+```ts
+// src/collections/Categories.ts
+
+import type { CollectionConfig } from "payload";
+// ↑ Import from "payload". The path "payload/types" is Payload 2 and does NOT resolve in this project.
+
+const slugify = (input: string): string =>
+  input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+// ↑ File-local helper. Duplicate per collection for now — do NOT extract to a shared utility.
+//   Phase 4 will consolidate once the pattern is settled.
+
+export const Categories: CollectionConfig = {
+  slug: "categories",
+  labels: {
+    singular: "Category",
+    plural: "Categories",
+  },
+  // ↑ Always set labels explicitly. Payload's default pluralization produces things like "Categorys".
+  admin: {
+    useAsTitle: "name",
+    defaultColumns: ["name", "slug", "parent"],
+  },
+  access: {
+    read: () => true,
+    create: ({ req }) => req.user?.collection === "users",
+    update: ({ req }) => req.user?.collection === "users",
+    delete: ({ req }) => req.user?.collection === "users",
+  },
+  // ↑ Public read so the storefront can list without auth.
+  //   Writes gated on the admin Users collection (NOT Customers — req.user?.collection === "users").
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (!data.slug && data.name) {
+          data.slug = slugify(data.name);
+        }
+        return data;
+      },
+    ],
+  },
+  // ↑ Auto-fill slug only when missing. Never overwrite a slug the admin has explicitly set.
+  fields: [
+    {
+      name: "name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "slug",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+      admin: {
+        description:
+          "Auto-fills from the name. Only edit if you know what you're doing.",
+      },
+    },
+    // ↑ admin.description is plain-English help text for dad/sister, NOT a developer comment.
+    {
+      name: "description",
+      type: "textarea",
+      admin: {
+        description: "Short blurb shown on the category page.",
+      },
+    },
+    // ↑ textarea, NOT richText — category copy is short and doesn't need lexical.
+    {
+      name: "image",
+      type: "upload",
+      relationTo: "media",
+      label: "Hero image",
+      admin: {
+        description: "Shown at the top of the category page.",
+      },
+    },
+    // ↑ relationTo is a STRING for single-target uploads. The array form is polymorphic
+    //   and changes on-disk storage — getting this wrong silently breaks queries.
+    {
+      name: "parent",
+      type: "relationship",
+      relationTo: "categories",
+      admin: {
+        description:
+          "Leave blank for top-level categories. Pick a parent to nest this one under it.",
+      },
+    },
+    // ↑ Self-referential relation — relationTo points back at this collection's own slug.
+  ],
+};
+
+export default Categories;
+// ↑ Both named AND default export. Other modules import the named one;
+//   Payload/Next pick up the default.
+```
+
+When you scaffold a new collection, the diff from this file should be small and obvious: collection slug, label strings, field list. The boilerplate (imports, slugify helper, labels block, access block, beforeChange hook, export shape) stays identical.
+
+---
+
+## Formatting and post-processing
+
+Your output is run through **Prettier** before the senior reviewer sees it. Don't burn cycles getting whitespace, line wrapping, or trailing commas exactly right — formatting drift is corrected automatically. Focus your attention on:
+
+- **Correctness** — types compile, fields match the schema reference, imports resolve.
+- **Convention** — file structure mirrors the reference implementation above.
+- **Quote style** — Prettier in this project is configured for **double quotes**. If you emit single quotes they'll be flipped, but emit double quotes if you can — it makes the diff easier to read pre-format.
+
+Do NOT spend output tokens on a self-formatted "pretty" version. Compact-but-correct beats hand-wrapped-but-wrong.
+
+---
+
 ## Files you must NOT touch
 
 These are senior-reviewer-only. If a task asks you to modify any of these, stop and output an error message instead.
