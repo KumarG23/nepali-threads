@@ -1,88 +1,97 @@
-// src/collections/ProductVariants.ts
-import type { CollectionConfig } from 'payload';
-import MoneyField from '@/components/admin/MoneyField';
+import type { CollectionConfig } from "payload";
 
-const ProductVariants: CollectionConfig = {
-  slug: 'product-variants',
+export const ProductVariants: CollectionConfig = {
+  slug: "product-variants",
   admin: {
-    useAsTitle: 'sku',
-    defaultColumns: ['sku', 'product', 'size', 'color', 'inventoryCount', 'price'],
+    useAsTitle: "sku",
+    defaultColumns: [
+      "sku",
+      "product",
+      "size",
+      "color",
+      "inventoryCount",
+      "price",
+    ],
   },
   access: {
     read: () => true,
-    create: () => false,
-    update: () => false,
-    delete: () => false,
+    create: ({ req }) => req.user?.collection === "users",
+    update: ({ req }) => req.user?.collection === "users",
+    delete: ({ req }) => req.user?.collection === "users",
   },
   fields: [
     {
-      name: 'product',
-      type: 'relationship',
-      relationTo: 'products',
+      name: "product",
+      type: "relationship",
+      relationTo: "products",
       required: true,
     },
     {
-      name: 'size',
-      type: 'text',
-      label: 'Size',
-      description: 'e.g. S, M, L, XL — leave blank if this variant isn\'t size-specific.',
-      required: false,
-    },
-    {
-      name: 'color',
-      type: 'text',
-      label: 'Color',
-      required: false,
-    },
-    {
-      name: 'sku',
-      type: 'text',
-      label: 'SKU',
-      description: 'Inventory code for this specific variant.',
+      name: "sku",
+      type: "text",
+      required: true,
       unique: true,
       index: true,
-      required: true,
+      label: "SKU",
+      admin: {
+        description: "Inventory code for this specific variant.",
+      },
     },
     {
-      name: 'price',
-      type: 'number',
-      label: 'Price override (USD)',
-      description:
-        'Optional. If set, this overrides the product\'s base price for this variant. Stored as integer cents.',
-      min: 0,
+      name: "size",
+      type: "text",
       admin: {
+        description:
+          "e.g. S, M, L, XL — leave blank if this variant isn't size-specific.",
+      },
+    },
+    {
+      name: "color",
+      type: "text",
+    },
+    {
+      name: "price",
+      type: "number",
+      min: 0,
+      label: "Price override (USD)",
+      admin: {
+        description:
+          "Optional. If set, this overrides the product's base price for this variant. Stored as integer cents.",
         components: {
-          Field: MoneyField,
-          Cell: `${MoneyField}#MoneyCell`,
+          Field: "@/components/admin/MoneyField",
+          Cell: "@/components/admin/MoneyField#MoneyCell",
         },
       },
-      required: false,
     },
     {
-      name: 'inventoryCount',
-      type: 'number',
-      label: 'Inventory',
-      description: 'How many of this variant we have on hand.',
+      name: "inventoryCount",
+      type: "number",
+      required: true,
       min: 0,
       defaultValue: 0,
-      required: true,
+      label: "Inventory",
+      admin: {
+        description: "How many of this variant we have on hand.",
+      },
     },
     {
-      name: 'images',
-      type: 'array',
-      label: 'Images',
-      description:
-        'Optional. Falls back to the product\'s main photos if blank.',
+      name: "images",
+      type: "array",
+      label: "Photos",
+      admin: {
+        description:
+          "Optional. Falls back to the product's main photos if blank.",
+      },
       fields: [
         {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
+          name: "image",
+          type: "upload",
+          relationTo: "media",
+          required: true,
         },
       ],
     },
   ],
 };
 
-export const ProductVariantsCollection = ProductVariants;
 export default ProductVariants;
