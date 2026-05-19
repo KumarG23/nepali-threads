@@ -67,6 +67,12 @@ export default buildConfig({
         media: true,
       },
       bucket: process.env.S3_BUCKET || "",
+      // Client-side uploads: the admin browser PUTs directly to R2 via a
+      // signed URL, bypassing Vercel's 4.5 MB function body limit. Exposes
+      // POST /api/media/storage-s3-generate-signed-url which the admin UI
+      // calls to mint a per-object signed URL. Requires R2 CORS to allow
+      // PUT from the admin origin.
+      clientUploads: true,
       config: {
         endpoint: process.env.S3_ENDPOINT,
         credentials: {
