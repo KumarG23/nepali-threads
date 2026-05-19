@@ -280,6 +280,10 @@ export interface Product {
   id: number;
   name: string;
   /**
+   * Auto-fills from the name. Only edit if you know what you're doing.
+   */
+  slug: string;
+  /**
    * The main copy on the product page.
    */
   description?: {
@@ -297,18 +301,20 @@ export interface Product {
     };
     [k: string]: unknown;
   } | null;
+  category: number | Category;
   /**
    * Stored as integer cents.
    */
   basePrice: number;
-  category: number | Category;
   /**
-   * Drag to reorder. First photo is the main image.
+   * Drag to reorder. First photo is the main image. Optional — you can save a draft and add photos later.
    */
-  images: {
-    image: number | Media;
-    id?: string | null;
-  }[];
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
   featured?: boolean | null;
   /**
    * Drafts and archived products aren't visible on the storefront.
@@ -326,10 +332,6 @@ export interface Product {
    * Used when this page is shared on social media. Square or landscape works best.
    */
   seoImage?: (number | null) | Media;
-  /**
-   * Auto-fills from the name. Only edit if you know what you're doing.
-   */
-  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -714,9 +716,10 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface ProductsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   description?: T;
-  basePrice?: T;
   category?: T;
+  basePrice?: T;
   images?:
     | T
     | {
@@ -728,7 +731,6 @@ export interface ProductsSelect<T extends boolean = true> {
   seoTitle?: T;
   seoDescription?: T;
   seoImage?: T;
-  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

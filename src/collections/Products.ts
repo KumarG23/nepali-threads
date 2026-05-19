@@ -42,12 +42,29 @@ export const Products: CollectionConfig = {
               required: true,
             },
             {
+              name: "slug",
+              type: "text",
+              required: true,
+              unique: true,
+              index: true,
+              admin: {
+                description:
+                  "Auto-fills from the name. Only edit if you know what you're doing.",
+              },
+            },
+            {
               name: "description",
               type: "richText",
               editor: lexicalEditor(),
               admin: {
                 description: "The main copy on the product page.",
               },
+            },
+            {
+              name: "category",
+              type: "relationship",
+              relationTo: "categories",
+              required: true,
             },
             {
               name: "basePrice",
@@ -64,20 +81,12 @@ export const Products: CollectionConfig = {
               },
             },
             {
-              name: "category",
-              type: "relationship",
-              relationTo: "categories",
-              required: true,
-            },
-            {
               name: "images",
               type: "array",
               label: "Photos",
-              required: true,
-              minRows: 1,
               admin: {
                 description:
-                  "Drag to reorder. First photo is the main image.",
+                  "Drag to reorder. First photo is the main image. Optional — you can save a draft and add photos later.",
               },
               fields: [
                 {
@@ -142,18 +151,6 @@ export const Products: CollectionConfig = {
           ],
         },
       ],
-    },
-    {
-      name: "slug",
-      type: "text",
-      required: true,
-      unique: true,
-      index: true,
-      admin: {
-        position: "sidebar",
-        description:
-          "Auto-fills from the name. Only edit if you know what you're doing.",
-      },
     },
   ],
 };
