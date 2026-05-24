@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Brand Red — oxblood, warm and handmade. 600 is the canonical brand color. */
+  --color-brand-red-50: #FEF2F2;
+  --color-brand-red-100: #FCE7E7;
+  --color-brand-red-200: #F9D0D0;
+  --color-brand-red-300: #F3A9A9;
+  --color-brand-red-400: #EA7A7A;
+  --color-brand-red-500: #D84A4A;
+  --color-brand-red-600: #9B2C2C;
+  --color-brand-red-700: #7A2323;
+  --color-brand-red-800: #5E1C1C;
+  --color-brand-red-900: #4A1818;
+
+  /* Brand Gold — muted antique, like old book gilding. 600 is the canonical accent. */
+  --color-brand-gold-50: #FDF9F0;
+  --color-brand-gold-100: #FAF0D8;
+  --color-brand-gold-200: #F5E2B0;
+  --color-brand-gold-300: #EDD285;
+  --color-brand-gold-400: #E0C05A;
+  --color-brand-gold-500: #D4B04A;
+  --color-brand-gold-600: #C9A84C;
+  --color-brand-gold-700: #A88A3D;
+  --color-brand-gold-800: #876E32;
+  --color-brand-gold-900: #6B5729;
+
+  /* Warm neutrals — cream background and soft charcoal text. */
+  --color-neutral-cream: #FAF7F2;
+  --color-neutral-ink: #2A2420;
+
+  --text-display: 2.5rem;
+  --text-h1: 2rem;
+  --text-h2: 1.5rem;
+  --text-h3: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-neutral-cream);
+  color: var(--color-neutral-ink);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
 }
