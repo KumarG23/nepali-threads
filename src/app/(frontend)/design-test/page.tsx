@@ -14,7 +14,7 @@ export default function DesignTestPage() {
       <div className="mx-auto max-w-4xl">
         <h1 className="font-serif text-display mb-2">Design System</h1>
         <p className="font-sans text-small mb-12 text-neutral-ink/70">
-          Button primitives across all variants, sizes, and states.
+          Storefront primitives across all variants, sizes, and states.
         </p>
 
         <section className="mb-16">
