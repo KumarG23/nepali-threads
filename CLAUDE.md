@@ -333,10 +333,29 @@ For every task, produce:
    // src/components/ProductCard.tsx
    ...code...
    ```
-3. **A "Notes for reviewer" section** at the bottom, in markdown, listing:
+3. **Notes for the reviewer** — these do NOT go in your response body or
+   commit message. Instead, append a section to the bottom of the task
+   spec file (`tasks/TASK-NNN-*.md`) on the same branch as your code
+   changes, under a heading that names you:
+
+   ```markdown
+   ## Notes for Reviewer (Kimi)
+   ```
+
+   or
+
+   ```markdown
+   ## Notes for Reviewer (Codex)
+   ```
+
+   The spec file is the canonical record of "what was asked, what was
+   decided, what got built." Putting notes there keeps decisions
+   alongside the spec they relate to, instead of buried in commit
+   history. Cover:
    - Anything you weren't sure about (with the line number)
    - Any blocklist files this task came close to (and why you stayed out)
    - Any test cases the reviewer should run
+   - Any prompts from the spec's `OUTPUT NOTES FOR REVIEWER` stanza
 
 Do not include preamble, apologies, or "Sure, here's...". Start with the summary line.
 
@@ -362,6 +381,13 @@ OUT OF SCOPE:
 
 ACCEPTANCE:
 - 
+
+OUTPUT NOTES FOR REVIEWER:
+- List specific decisions or trade-offs the reviewer should hear about
+  (e.g. "confirm your block-slug naming choice", "flag any place you
+  considered adding X"). When the task is finished, append your answers
+  to the bottom of this same file under `## Notes for Reviewer (Kimi)`
+  or `## Notes for Reviewer (Codex)` — see CLAUDE.md "Output format".
 ```
 
 ---
