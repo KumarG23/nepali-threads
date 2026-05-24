@@ -1,4 +1,4 @@
-TASK ID: TASK-006
+TASK ID: TASK-005
 PHASE: Phase 2
 GOAL: Establish the brand design tokens (colors, typography, spacing) in the Tailwind v4 CSS theme, then build a `Button` primitive that uses them. This is the foundation every other Phase 2 storefront component will sit on, so the choices made here propagate.
 
@@ -21,8 +21,13 @@ FILES TO CREATE OR MODIFY:
 
 REQUIREMENTS:
 
+**Tailwind v4 token mechanics (read first).**
+- Static brand values (hex colors, font sizes) belong in a plain `@theme { ... }` block — Tailwind inlines those into utility output.
+- Tokens that reference a runtime CSS variable (e.g. `var(--font-fraunces)` set by `next/font`) belong in `@theme inline { ... }` — the existing block in `globals.css` is already this form for the Geist fonts. You'll likely want one of each: a new `@theme { ... }` for colors and fluid font sizes, and the existing `@theme inline { ... }` extended for the next/font variables.
+- Token-prefix → utility-class mapping Tailwind v4 understands automatically: `--color-X` → `bg-X` / `text-X` / `border-X` / ...; `--text-X` → `text-X` (font size); `--font-X` → `font-X` (font family); `--spacing-X` → `p-X` / `m-X` / ... . Use these prefixes exactly or the utilities won't generate.
+
 **1. Color tokens.**
-- Define two custom color scales in `@theme inline { ... }`: `--color-brand-red-50` through `--color-brand-red-900` and `--color-brand-gold-50` through `--color-brand-gold-900`. Nine stops each (50, 100, 200, 300, 400, 500, 600, 700, 800, 900) so utility classes like `bg-brand-red-600` / `text-brand-gold-400` Just Work.
+- Define two custom color scales: `--color-brand-red-50` through `--color-brand-red-900` and `--color-brand-gold-50` through `--color-brand-gold-900`. Nine stops each (50, 100, 200, 300, 400, 500, 600, 700, 800, 900) so utility classes like `bg-brand-red-600` / `text-brand-gold-400` Just Work.
 - Also define warm neutrals: `--color-neutral-cream` (the off-white background) and `--color-neutral-ink` (the warm dark text color). One value each, not full scales — these are anchors, not ramps.
 - Pick the exact hex values yourself. They should feel artisan and intentional, not "default Tailwind blue" generic. The 600 stop on each scale is the canonical brand color (used for primary buttons, accents). Use the 50–200 range for backgrounds/tints and the 700–900 range for hover/active darkening.
 - Add a brief CSS comment above the color block explaining the rationale for the 600-stop values — what each one is *meant* to evoke. One sentence per scale is enough.
@@ -38,18 +43,18 @@ REQUIREMENTS:
 - Tailwind v4's default spacing scale is already good. **Do not** override it unless you have a specific brand-driven reason. If you add custom spacing tokens, justify them in output notes — otherwise leave defaults alone. (The "boring choice" applies here.)
 
 **4. Button component.**
-- File: `src/components/ui/Button.tsx`. Default export a `Button` React component.
-- Render a real `<button>` element. Forward `ref` via `React.forwardRef`. Accept and spread all native `<button>` props.
+- File: `src/components/ui/Button.tsx`. First line: `"use client";` — consumers will commonly pass `onClick` handlers, which requires a client boundary. Default export a `Button` React component.
+- Render a real `<button>` element. Accept all native `<button>` props (extend `React.ComponentPropsWithoutRef<"button">`) and spread them. **Use the React 19 idiom of accepting `ref` as a regular prop** (`ref?: React.Ref<HTMLButtonElement>`) — do NOT use `React.forwardRef`, which is being phased out in React 19.
 - Variants (`variant` prop): `"primary"` (filled red — `bg-brand-red-600 text-neutral-cream`, darkens on hover), `"secondary"` (transparent background, `border` + `text-brand-red-600`, fills on hover), `"ghost"` (no border, transparent background, hover applies a subtle tinted background like `bg-brand-red-50`). Default: `"primary"`.
 - Sizes (`size` prop): `"sm"`, `"md"`, `"lg"`. Default: `"md"`. Each size controls padding, font size (use the type scale tokens), and minimum height. The `md` size should feel like a comfortable touch target (~40px min-height); `sm` is for inline/compact uses; `lg` is for hero CTAs.
 - States to implement:
   - **default / hover / active:** covered via Tailwind utility classes.
-  - **disabled:** when the `disabled` prop is `true`, apply `aria-disabled` semantics + visual dim (reduced opacity, `cursor-not-allowed`). Don't fight the native HTML — let `<button disabled>` do its job.
-  - **loading:** new `loading?: boolean` prop. When `true`: render a spinner alongside (or replacing) the label, set `aria-busy="true"`, and behave as disabled (don't fire `onClick`). Children stay visible but dimmed, with the spinner inline. Use an inline `<svg>` spinner — **do not add a spinner library or dependency.**
+  - **disabled:** the consumer passes the native `disabled` prop. Apply visual dim (reduced opacity, `cursor-not-allowed`). The native `<button disabled>` handles all the semantics and click-blocking for free — don't layer `aria-disabled` on top.
+  - **loading:** new `loading?: boolean` prop. When `true`: set `disabled={true}` internally (blocks clicks for free), add `aria-busy="true"`, and render an inline `<svg>` spinner next to the label. Children stay visible but dimmed. Use an inline `<svg>` spinner — **do not add a spinner library or dependency.**
 - Accessibility:
   - `focus-visible:` ring using `--color-brand-gold-400` or similar — visible against both light and tinted backgrounds.
   - Keyboard navigable (real `<button>` handles this for free).
-  - `aria-busy` when loading; `aria-disabled` when disabled.
+  - `aria-busy="true"` only during loading. No `aria-disabled` — the native `disabled` attribute is sufficient.
 - Prop API style: **single variant prop pattern** (`variant: "primary" | "secondary" | "ghost"`, `size: "sm" | "md" | "lg"`). Don't reach for a discriminated union here — a button with 3 variants × 3 sizes × a couple of boolean states doesn't need one. Keep it boring.
 - **No new dependencies.** If you need a className-join utility, write a 5-line `cx` helper inline at the top of the file (`function cx(...args: (string | false | undefined)[])`). Do not install `clsx`, `class-variance-authority`, `tailwind-merge`, etc.
 

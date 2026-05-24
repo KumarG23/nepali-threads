@@ -172,6 +172,22 @@ This project runs Payload 3.x. Several APIs changed from Payload 2 — follow th
 
 ---
 
+## Storefront UI conventions
+
+These apply to any work building public-facing storefront UI (Phase 2 and beyond). They do NOT apply to Payload admin UI, which has its own rules above.
+
+- **Tailwind v4, CSS-based config.** This project does NOT have a `tailwind.config.ts` / `.js` file. All theme tokens live in CSS via the `@theme` directive in `src/app/(frontend)/globals.css`. Do not create a JS/TS Tailwind config — Tailwind v4 reads tokens from CSS.
+- **`@theme` vs `@theme inline`.** Use plain `@theme { ... }` for static values (hex colors, font sizes). Use `@theme inline { ... }` only when the token references a runtime CSS variable (e.g. a `next/font` variable like `var(--font-fraunces)`) — `inline` tells Tailwind to bake the resolved value into utility output instead of emitting a `var()` chain.
+- **Token-prefix → utility-class mapping** (Tailwind v4 understands these automatically): `--color-X` → `bg-X` / `text-X` / `border-X`; `--text-X` → `text-X` (font size); `--font-X` → `font-X` (font family); `--spacing-X` → `p-X` / `m-X` / `gap-X`. Use these exact prefixes or the utilities won't generate.
+- **Component folder split.** `src/components/ui/` holds storefront primitives (Button, Card, Input, etc.). `src/components/admin/` holds Payload admin-only components (MoneyField, etc.). Don't mix the two — admin components import Payload internals that shouldn't ship to the storefront bundle.
+- **No new npm dependencies without approval.** UI primitive work doesn't need `clsx`, `class-variance-authority`, `tailwind-merge`, `lucide-react`, Radix, etc. Write a 5-line inline `cx` helper if you need one, and use inline `<svg>` for icons/spinners. If a task genuinely needs a new dep, flag it in your output notes — don't add it unilaterally.
+- **Light mode only through Phase 2.** No `prefers-color-scheme: dark` blocks, no `dark:` utility classes. The Next default scaffolding included a dark-mode media query in `globals.css` — remove it when you first touch that file.
+- **React 19 ref idiom.** This project is on React 19 (`react: 19.1.0`). Pass `ref` as a regular prop (`ref?: React.Ref<HTMLElement>`) — do NOT use `React.forwardRef`, which is being phased out. New components should follow the React 19 pattern from day one.
+- **Server Components by default.** Add `"use client"` only when a file genuinely needs it: state hooks, effects, event handlers from consumers, or browser-only APIs. A primitive that accepts `onClick` from a consumer needs `"use client"` at the top.
+- **Tone in UI copy.** Confident but warm. Never corporate. "Add to cart" not "Submit purchase." "Sold out" not "Inventory exhausted." Match the artisan/mission-forward brand voice across labels, empty states, and error messages.
+
+---
+
 ## Reference implementation — `Categories` collection
 
 This is what a finished, post-review collection looks like in this repo. **Match this shape exactly** when scaffolding new collections — copy the structure, swap the field list. Patterns to mimic: import path, label block, access block, slug helper + `beforeChange` hook, named-and-default export, plain-English `admin.description` on every non-obvious field.
