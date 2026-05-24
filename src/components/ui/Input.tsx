@@ -70,6 +70,7 @@ export function Input({
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
+        required={required}
         disabled={disabled}
         className={cx(baseClasses, sizeClasses, stateClasses, disabledClasses)}
         {...rest}
