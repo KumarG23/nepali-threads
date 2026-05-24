@@ -2,12 +2,14 @@
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
 
 export default function DesignTestPage() {
   const variants = ["primary", "secondary", "ghost"] as const;
   const sizes = ["sm", "md", "lg"] as const;
   const cardVariants = ["elevated", "bordered", "flat"] as const;
   const cardPaddings = ["none", "sm", "md", "lg"] as const;
+  const inputSizes = ["sm", "md", "lg"] as const;
 
   return (
     <main className="min-h-screen bg-neutral-cream p-8 text-neutral-ink">
@@ -83,6 +85,50 @@ export default function DesignTestPage() {
                   </p>
                 )}
               </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Inputs: States</h2>
+          <div className="mx-auto flex max-w-md flex-col gap-6">
+            <Input
+              label="Default"
+              placeholder="Type something..."
+            />
+            <Input
+              label="With hint"
+              hint="This is a helpful hint about the field."
+              placeholder="Type something..."
+            />
+            <Input
+              label="With error"
+              error="This field is required."
+              placeholder="Type something..."
+            />
+            <Input
+              label="Required"
+              required
+              placeholder="Type something..."
+            />
+            <Input
+              label="Disabled"
+              disabled
+              placeholder="Cannot type here..."
+            />
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Inputs: Sizes</h2>
+          <div className="mx-auto flex max-w-md flex-col gap-6">
+            {inputSizes.map((s) => (
+              <Input
+                key={s}
+                label={`Size: ${s}`}
+                inputSize={s}
+                placeholder={`${s} input`}
+              />
             ))}
           </div>
         </section>
