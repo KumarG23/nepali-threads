@@ -1,17 +1,20 @@
 // TEMP: design-system smoke test page, delete once primitives are stable.
 
 import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 export default function DesignTestPage() {
   const variants = ["primary", "secondary", "ghost"] as const;
   const sizes = ["sm", "md", "lg"] as const;
+  const cardVariants = ["elevated", "bordered", "flat"] as const;
+  const cardPaddings = ["none", "sm", "md", "lg"] as const;
 
   return (
     <main className="min-h-screen bg-neutral-cream p-8 text-neutral-ink">
       <div className="mx-auto max-w-4xl">
         <h1 className="font-serif text-display mb-2">Design System</h1>
         <p className="font-sans text-small mb-12 text-neutral-ink/70">
-          Button primitives across all variants, sizes, and states.
+          Storefront primitives across all variants, sizes, and states.
         </p>
 
         <section className="mb-16">
@@ -47,6 +50,39 @@ export default function DesignTestPage() {
                   Loading
                 </Button>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Cards: Variants</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {cardVariants.map((variant) => (
+              <Card key={variant} variant={variant} padding="md">
+                <h3 className="font-serif text-h3 mb-2">{variant}</h3>
+                <p className="font-sans text-body text-neutral-ink/70">
+                  A sample card with placeholder content to show how the{" "}
+                  {variant} variant renders with real text inside.
+                </p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Cards: Padding Scale</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {cardPaddings.map((padding) => (
+              <Card key={padding} variant="elevated" padding={padding}>
+                <span className="font-sans text-small font-medium uppercase text-neutral-ink/50">
+                  padding="{padding}"
+                </span>
+                {padding !== "none" && (
+                  <p className="font-sans text-body mt-2 text-neutral-ink/70">
+                    Content inside the card.
+                  </p>
+                )}
+              </Card>
             ))}
           </div>
         </section>
