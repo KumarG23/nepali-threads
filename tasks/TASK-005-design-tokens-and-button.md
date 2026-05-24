@@ -23,7 +23,7 @@ REQUIREMENTS:
 
 **Tailwind v4 token mechanics (read first).**
 - Static brand values (hex colors, font sizes) belong in a plain `@theme { ... }` block — Tailwind inlines those into utility output.
-- Tokens that reference a runtime CSS variable (e.g. `var(--font-fraunces)` set by `next/font`) belong in `@theme inline { ... }` — the existing block in `globals.css` is already this form for the Geist fonts. You'll likely want one of each: a new `@theme { ... }` for colors and fluid font sizes, and the existing `@theme inline { ... }` extended for the next/font variables.
+- Tokens that reference a runtime CSS variable (e.g. a `next/font` variable like `var(--font-fraunces)`) belong in `@theme inline { ... }` — the existing block in `globals.css` is already this form for the Geist fonts. You'll likely want one of each: a new `@theme { ... }` for colors and fluid font sizes, and the existing `@theme inline { ... }` extended for the next/font variables.
 - Token-prefix → utility-class mapping Tailwind v4 understands automatically: `--color-X` → `bg-X` / `text-X` / `border-X` / ...; `--text-X` → `text-X` (font size); `--font-X` → `font-X` (font family); `--spacing-X` → `p-X` / `m-X` / ... . Use these prefixes exactly or the utilities won't generate.
 
 **1. Color tokens.**
@@ -88,3 +88,28 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths.
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+**Anchor hex values and rationale:**
+- `brand-red-600`: `#9B2C2C` — Deep oxblood with warm brown undertones. Evokes hand-dyed fabric or natural pigments (madder root, cochineal) rather than synthetic fire-engine red. The 50–900 scale ramps by adjusting lightness/saturation outward from this anchor: lighter tints become progressively pinker (200–400), darker shades deepen toward maroon (700–900).
+- `brand-gold-600`: `#C9A84C` — Muted antique gold, matte and aged. Reads like old book gilding or tarnished brass rather than metallic Vegas gold. The lighter stops (100–400) warm toward straw yellow; darker stops (700–900) shift toward olive-brown.
+- `neutral-cream`: `#FAF7F2` — Warm off-white with a subtle peach undertone. Avoids the sterile hospital feel of pure white or cool gray-white. Chosen to make the product photography (warm skin tones, natural fibers) feel at home.
+- `neutral-ink`: `#2A2420` — Soft charcoal with a warm brown cast. Not pure black (#000), which would feel corporate and harsh against the cream background. This reads as aged paper ink or soft pencil.
+
+**Font pairing:**
+- **Serif:** Fraunces (via `next/font/google`). Chosen because it has enough character for artisan branding without becoming twee or unreadable at display sizes. Variable weight + optical size axis makes it versatile.
+- **Sans:** Inter (via `next/font/google`). Neutral, reliable, and dense character set. Rejected alternatives: Cormorant (too delicate for body at small sizes), Playfair Display (too fashion-editorial, less mission-forward).
+
+**Variant naming / prop API uncertainty:**
+- No major uncertainty. Chose the flat prop pattern (`variant` + `size`) over a discriminated union because 3×3×2 booleans doesn't warrant the complexity. One minor call: the `ghost` variant uses `bg-brand-red-50` on hover — considered `bg-brand-gold-50` for visual variety, but red keeps the hover state within the primary brand family. Flagging in case you want the gold tint instead.
+
+**Custom spacing tokens:**
+- None added. Left Tailwind v4's default spacing scale intact. The brand doesn't have a grid system or spacing rhythm rigid enough to justify overrides yet. Can revisit once layout components land.
+
+**Blocklist confirmation:**
+- Did not touch any blocklisted paths. Work stayed entirely within `src/app/(frontend)/`, `src/components/ui/`, and `tasks/`. No `src/payload.config.ts`, no `src/app/api/`, no `migrations/`, no new npm deps.
+
+**Build verification:**
+- `npx tsc --noEmit` clean.
+- `npm run build` exit 0, `/design-test` statically generated.
