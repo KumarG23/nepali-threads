@@ -21,6 +21,7 @@ import { GiftCardRedemptions } from "./collections/GiftCardRedemptions";
 import { GiftCards } from "./collections/GiftCards";
 import { Media } from "./collections/Media";
 import { Orders } from "./collections/Orders";
+import { Pages } from "./collections/Pages";
 import { ProductVariants } from "./collections/ProductVariants";
 import { Products } from "./collections/Products";
 import { Users } from "./collections/Users";
@@ -46,6 +47,7 @@ export default buildConfig({
     Orders,
     GiftCards,
     GiftCardRedemptions,
+    Pages,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
