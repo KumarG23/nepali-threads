@@ -77,6 +77,7 @@ export interface Config {
     orders: Order;
     'gift-cards': GiftCard;
     'gift-card-redemptions': GiftCardRedemption;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -93,6 +94,7 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'gift-cards': GiftCardsSelect<false> | GiftCardsSelect<true>;
     'gift-card-redemptions': GiftCardRedemptionsSelect<false> | GiftCardRedemptionsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -504,6 +506,59 @@ export interface GiftCardRedemption {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * Auto-fills from the title. Used in the URL.
+   */
+  slug: string;
+  /**
+   * Add rich text or image blocks to build the page.
+   */
+  blocks: (
+    | {
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'richText';
+      }
+    | {
+        image: number | Media;
+        /**
+         * Optional caption shown below the image.
+         */
+        caption?: string | null;
+        /**
+         * How the image is positioned on the page.
+         */
+        alignment?: ('left' | 'center' | 'full-width') | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'image';
+      }
+  )[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -561,6 +616,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gift-card-redemptions';
         value: number | GiftCardRedemption;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null);
   globalSlug?: string | null;
   user:
@@ -835,6 +894,36 @@ export interface GiftCardRedemptionsSelect<T extends boolean = true> {
   giftCard?: T;
   order?: T;
   amountUsed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  blocks?:
+    | T
+    | {
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        image?:
+          | T
+          | {
+              image?: T;
+              caption?: T;
+              alignment?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
