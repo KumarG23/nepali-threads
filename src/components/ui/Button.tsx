@@ -49,7 +49,7 @@ export function Button({
     <button
       ref={ref}
       disabled={isDisabled}
-      aria-busy={loading}
+      aria-busy={loading || undefined}
       className={cx(
         baseClasses,
         variantClasses,

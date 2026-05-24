@@ -43,8 +43,8 @@
 }
 
 body {
-  background-color: #FAF7F2;
-  color: #2A2420;
+  background-color: var(--color-neutral-cream);
+  color: var(--color-neutral-ink);
 }
 
 h1, h2, h3, h4, h5, h6 {
