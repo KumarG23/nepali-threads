@@ -15,6 +15,8 @@ import { getPayload } from "payload";
 
 import config from "@payload-config";
 
+import { sendOrderConfirmation } from "@/lib/email/send-order-confirmation";
+
 export type PersistStripeOrderResult =
   | { created: true; orderId: number | string }
   | { created: false; orderId: number | string; reason: "already_exists" }
@@ -151,6 +153,27 @@ export async function persistStripeOrder(
         stripePaymentIntentId: paymentIntentId,
       },
     });
+
+    // Fire the confirmation email. sendOrderConfirmation never throws —
+    // if Resend errors, it logs and returns a structured result. We do
+    // not block order creation success on email delivery.
+    const customerEmail = session.customer_details?.email;
+    if (customerEmail) {
+      await sendOrderConfirmation({
+        orderId: order.id,
+        customerEmail,
+        customerName: shippingAddress.recipientName || undefined,
+        lineItems: snapshot.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          priceCents: item.priceCents,
+        })),
+        subtotalCents,
+        totalCents,
+        shippingAddress,
+      });
+    }
+
     return { created: true, orderId: order.id };
   } catch (err) {
     console.error(

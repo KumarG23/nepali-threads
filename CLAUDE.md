@@ -109,6 +109,7 @@ These files contain payment, auth, or money-math logic. The cost of a confidentl
 - `src/lib/gift-cards/**` — gift card balance/redemption math
 - `src/lib/inventory.ts` — inventory decrement logic
 - `src/lib/orders/**` — order-persistence + Stripe→Payload mapping (money-sensitive writes)
+- `src/lib/email/**` — transactional email send + templates (PII, customer-facing copy)
 - `src/collections/Users.ts` — admin auth config
 - `src/collections/Customers.ts` — customer auth config
 - `src/collections/Orders.ts` — order state machine

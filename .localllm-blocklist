@@ -14,6 +14,7 @@ src/lib/stripe/**
 src/lib/gift-cards/**
 src/lib/inventory.ts
 src/lib/orders/**
+src/lib/email/**
 src/components/admin/MoneyField.tsx
 src/collections/Users.ts
 src/collections/Customers.ts
