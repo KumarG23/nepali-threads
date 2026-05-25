@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
+import Footer from "@/components/storefront/Footer";
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
 import {
@@ -308,6 +309,16 @@ export default function DesignTestPage() {
                 aspectRatio="tall"
               />
             </div>
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Footer</h2>
+          <p className="font-sans text-small text-neutral-ink/60 mb-4">
+            Full-width on real pages; clipped to the design-test container here.
+          </p>
+          <div className="-mx-8">
+            <Footer />
           </div>
         </section>
       </div>
