@@ -1,103 +1,84 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 
-export default function Home() {
+import Hero from "@/components/storefront/Hero";
+import ProductCard from "@/components/storefront/ProductCard";
+
+export const metadata: Metadata = {
+  title: "Nepali Threads",
+  description:
+    "Handmade clothing from Nepal. A small studio releasing one collection at a time.",
+};
+
+const PLACEHOLDER_IMAGE =
+  "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
+
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <Hero
+        imageSrc={PLACEHOLDER_IMAGE}
+        imageAlt="A handwoven wool cardigan draped over a wooden chair"
+        eyebrow="New collection"
+        heading="Made by hand in Nepal"
+        body="A small studio releasing one collection at a time, woven with the same care our families taught us."
+        cta={{ label: "Shop the collection", href: "/shop" }}
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <h2 className="font-serif text-h1 text-neutral-ink mb-2">
+          Recent work
+        </h2>
+        <p className="font-sans text-body text-neutral-ink/70 mb-12 max-w-xl">
+          A few pieces from the current collection. Each one is made by hand
+          and there&apos;s only ever a small number.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <ProductCard
+            name="Wool Cardigan"
+            priceCents={14500}
+            imageSrc={PLACEHOLDER_IMAGE}
+            imageAlt="Handwoven wool cardigan in deep red"
+          />
+          <ProductCard
+            name="Silk Scarf"
+            priceCents={6500}
+            imageSrc={PLACEHOLDER_IMAGE}
+            imageAlt="Lightweight silk scarf with gold trim"
+            badge={{ label: "New", variant: "accent" }}
+          />
+          <ProductCard
+            name="Handwoven Sweater"
+            priceCents={22000}
+            imageSrc={PLACEHOLDER_IMAGE}
+            imageAlt="Thick handwoven sweater in natural cream"
+            badge={{ label: "Sold out", variant: "muted" }}
+          />
+          <ProductCard
+            name="Cotton Tunic"
+            priceCents={9500}
+            imageSrc={PLACEHOLDER_IMAGE}
+            imageAlt="Breathable cotton tunic for warm weather"
+            badge={{ label: "Sale", variant: "primary" }}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      <section className="bg-neutral-ink/5 py-16 lg:py-24">
+        <div className="mx-auto max-w-3xl px-6 sm:px-8 lg:px-12 text-center">
+          <p className="font-sans text-small font-medium uppercase tracking-wide text-brand-gold-700 mb-3">
+            Why we make this
+          </p>
+          <h2 className="font-serif text-h1 text-neutral-ink mb-6">
+            A small studio, on purpose.
+          </h2>
+          <p className="font-sans text-body text-neutral-ink/80 leading-relaxed">
+            Our pieces are made one collection at a time by the same hands that
+            have been weaving cloth in Nepal for generations. Working small
+            means we can keep that craft alive and pay the people who do the
+            work properly.
+          </p>
+        </div>
+      </section>
+    </>
   );
 }
