@@ -18,11 +18,14 @@
     "@payloadcms/richtext-lexical": "^3.84.1",
     "@payloadcms/storage-s3": "^3.84.1",
     "graphql": "^16.14.0",
-    "next": "~15.4",
+    "next": "~15.5.18",
     "payload": "^3.84.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "sharp": "^0.34.5"
+  },
+  "overrides": {
+    "next": "$next"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

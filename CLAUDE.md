@@ -501,6 +501,30 @@ Without it, Node treats `.ts` files as CJS, sync-requires the import graph, and 
 
 Run `npx payload generate:importmap` after adding any new collection, custom admin component, or Payload plugin. Don't hand-edit. The file has a header comment saying so.
 
+### Next overridden to 15.5.18 despite Payload's <15.5.0 peer
+
+`@payloadcms/next@3.84.1` (latest stable) peers on `>=15.4.11 <15.5.0`,
+so the original pin was `~15.4` (memory: nextjs-version-pin). In May 2026
+that resolved to 15.4.11. By then, eight high-severity advisories had
+accumulated against Next (CVSS 7.5–8.6 — App Router middleware bypass,
+Server Component DoS, SSRF via WebSocket upgrades, segment-prefetch
+bypass, dynamic-route-param injection, etc.), all requiring 15.5.16+ to
+fix. No 15.4.x patch was ever released — 15.4.11 is the final 15.4.
+
+We chose to override Next to 15.5.18 via `package.json` `overrides`,
+bumping the direct dep to `~15.5.18` and forcing transitive resolution
+to the same version. Payload's peer-dep warning fires on install but is
+advisory — actual API compatibility between Payload 3.84.1 and Next
+15.5.x is intact (build clean, /admin renders at expected bundle size).
+If Payload-admin runtime behavior changes after deploy, this override
+is the first thing to suspect.
+
+Bump path going forward:
+- Continue to update Next within 15.5.x as patches drop (the `~15.5.18`
+  spec auto-takes patch-level updates).
+- When Payload 4.x ships stable with a Next 15.5/16 peer range, switch
+  back to a Payload-blessed Next and remove the override.
+
 ### `push: true` was removed from postgresAdapter
 
 It was a workaround for migrations not working from CLI. Now that migrations work (via the patches/ fix above), push is off. Migrations are how schema changes happen going forward.
