@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Block commits whose message starts with "[local]", "[kimi]", or "[codex]"
+# Block commits whose message starts with "[local]", "[kimi]", or "[gemini]"
 # if the staged diff touches any path matching .localllm-blocklist. The
 # local LLM is the intended author of these commits, and blocklisted
 # paths are reserved for the senior reviewer (Claude Code).
@@ -14,7 +14,7 @@ commit_msg_file="$1"
 first_line="$(head -n1 "$commit_msg_file")"
 
 case "$first_line" in
-  "[local]"*|"[kimi]"*|"[codex]"*) ;;
+  "[local]"*|"[kimi]"*|"[gemini]"*) ;;
   *) exit 0 ;;
 esac
 

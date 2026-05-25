@@ -1,6 +1,6 @@
 # CLAUDE.md — Nepali Threads Project
 
-> Canonical operational doc for the Nepali Threads e-commerce rebuild. Auto-loaded by Claude Code at the start of every session. Kimi and Codex should read this first when given a task.
+> Canonical operational doc for the Nepali Threads e-commerce rebuild. Auto-loaded by Claude Code at the start of every session. Kimi and Gemini should read this first when given a task.
 
 This file is the single source of truth for project conventions, schema, blocklist, and workflow. It supersedes `LLM_PROJECT_CONTEXT.md` (deleted; this file absorbed its content).
 
@@ -32,23 +32,25 @@ Use Kimi for the **majority** of coding work. Kimi K2.6 is an open-weights front
 
 Drain Kimi budget first when delegating. Neal will tell us when limits are hit.
 
-### Tier 2 — Codex CLI (fallback worker)
+### Tier 2 — Gemini 3.1 Pro (fallback worker)
 
-Lives in: terminal on Neal's MacBook, alongside Claude Code.
+Lives in: terminal via Gemini CLI on Neal's MacBook (or web UI — pick whichever surface is convenient for the task at hand).
 
-Use Codex when Kimi is exhausted, rate-limited, or specifically a better fit (long-context, sandbox-heavy work, autonomous multi-file edits). Codex is GPT-5.5-powered with a sandbox execution model and included in Neal's ChatGPT Plus subscription. Roughly equivalent quality to Kimi for most work; slightly different strengths.
+Use Gemini when Kimi is exhausted, rate-limited, or specifically a better fit (very-long-context reads across many files, multimodal work involving screenshots / mockups / product photography, tasks where Gemini's reasoning depth shines). Gemini 3.1 Pro is Google's frontier coding-capable model with a ~2M token context window and benchmarks roughly comparable to Kimi K2.6 on SWE-Bench Pro. Strengths: long context, multimodal, careful reasoning. Treat as a capable junior, same as Kimi — same review rules, same blocklist, same commit prefix conventions (`[gemini]` instead of `[kimi]`).
+
+Replaced Codex (GPT-5.5 / ChatGPT Plus) as the Tier 2 worker on 2026-05-24 after Kimi usage tracking confirmed we have ample weekly Kimi budget; the second-tier slot is now better-spent on Gemini's distinct strengths (long context, multimodal) than on a near-Kimi-equivalent fallback.
 
 ### Tier 3 — Claude Code (senior reviewer & architect)
 
 You, when reading this. Use sparingly — Claude API tokens are the most expensive line item. Earn your keep by being indispensable on:
 
-- Code review of Kimi/Codex output before merge
+- Code review of Kimi/Gemini output before merge
 - Security-sensitive work (see Blocklist below) — never delegated
 - Architecture and schema decisions
-- Debugging tricky problems that Kimi/Codex got stuck on
+- Debugging tricky problems that Kimi/Gemini got stuck on
 - Cross-cutting changes that need multi-file coordination
 - Direct work on small tasks where writing a spec would cost more than doing the work yourself
-- Wiring junior-produced collections into `payload.config.ts` (which is blocklisted — Kimi/Codex correctly stop short of it)
+- Wiring junior-produced collections into `payload.config.ts` (which is blocklisted — Kimi/Gemini correctly stop short of it)
 - Generating database migrations (`migrations/` is blocklisted)
 - Updates to this file (CLAUDE.md is the canonical doc; updates flow through review)
 
@@ -60,15 +62,15 @@ We ran a Phase 1 calibration test with Qwen 14B as a local junior dev. It failed
 
 ---
 
-## How to delegate work to Kimi or Codex
+## How to delegate work to Kimi or Gemini
 
 1. **Claude Code writes the task spec** to `tasks/TASK-NNN-<short-name>.md` using the template at the bottom of this doc. Include schema references, conventions, acceptance criteria, and an `OUTPUT NOTES FOR REVIEWER` stanza listing specific decisions you want the worker to surface.
 
-2. **Neal pastes the spec into Kimi (VS Code) or Codex (terminal)** along with the instruction to read `CLAUDE.md` first.
+2. **Neal pastes the spec into Kimi (VS Code) or Gemini (terminal / web UI)** along with the instruction to read `CLAUDE.md` first.
 
-3. **Kimi/Codex produces code** on a `local/TASK-NNN-<short-name>` branch. The `local/` prefix is preserved from the Qwen era for hook compatibility and applies regardless of which worker produced the code.
+3. **Kimi/Gemini produces code** on a `local/TASK-NNN-<short-name>` branch. The `local/` prefix is preserved from the Qwen era for hook compatibility and applies regardless of which worker produced the code.
 
-4. **Kimi/Codex appends a `## Notes for Reviewer (Kimi)` or `## Notes for Reviewer (Codex)` section to the bottom of the task spec file** — NOT in the commit message. The spec file is the canonical record of "what was asked, what was decided, what got built." Burying decisions in commit history loses them.
+4. **Kimi/Gemini appends a `## Notes for Reviewer (Kimi)` or `## Notes for Reviewer (Gemini)` section to the bottom of the task spec file** — NOT in the commit message. The spec file is the canonical record of "what was asked, what was decided, what got built." Burying decisions in commit history loses them.
 
 5. **Neal returns to Claude Code** to review the diff.
 
@@ -76,7 +78,7 @@ We ran a Phase 1 calibration test with Qwen 14B as a local junior dev. It failed
 
 7. **Commit messages** use a worker-prefix that survives review:
    - `[kimi] feat: ...` when Kimi produced the code
-   - `[codex] feat: ...` when Codex produced the code
+   - `[gemini] feat: ...` when Gemini produced the code
    - `[local] feat: ...` is preserved from the Qwen era — don't reuse, but old commits stay
    - Regular `feat:` / `fix:` / `chore:` when Claude Code or Neal worked directly
 
@@ -84,7 +86,7 @@ Don't queue multiple tasks for the same worker in parallel. Review-and-merge one
 
 ---
 
-## Blocklist — Claude Code only, never Kimi or Codex
+## Blocklist — Claude Code only, never Kimi or Gemini
 
 These files contain payment, auth, or money-math logic. The cost of a confidently-wrong AI output here is real customer money or real security holes. Claude Code does all of this work directly, every time.
 
@@ -105,7 +107,7 @@ These files contain payment, auth, or money-math logic. The cost of a confidentl
 - `patches/**` — patch-package patches to upstream dependencies
 - `.env*` — secrets
 
-The canonical machine-readable copy is `.localllm-blocklist` in the repo root. The git `commit-msg` hook blocks any `[kimi]`, `[codex]`, or `[local]` commit that touches these paths. Note: the hook only fires for commits using one of those prefixes — staying out of these files is the worker's responsibility regardless of commit message.
+The canonical machine-readable copy is `.localllm-blocklist` in the repo root. The git `commit-msg` hook blocks any `[kimi]`, `[gemini]`, or `[local]` commit that touches these paths. Note: the hook only fires for commits using one of those prefixes — staying out of these files is the worker's responsibility regardless of commit message.
 
 When a task asks for work that would touch a blocklist file, the worker should output:
 
@@ -437,7 +439,7 @@ For every task, produce:
    or
 
    ```markdown
-   ## Notes for Reviewer (Codex)
+   ## Notes for Reviewer (Gemini)
    ```
 
    The spec file is the canonical record of "what was asked, what was decided, what got built." Putting notes there keeps decisions alongside the spec they relate to, instead of buried in commit history. Cover:
@@ -476,7 +478,7 @@ OUTPUT NOTES FOR REVIEWER:
   (e.g. "confirm your block-slug naming choice", "flag any place you
   considered adding X"). When the task is finished, append your answers
   to the bottom of this same file under `## Notes for Reviewer (Kimi)`
-  or `## Notes for Reviewer (Codex)` — see CLAUDE.md "Output format".
+  or `## Notes for Reviewer (Gemini)` — see CLAUDE.md "Output format".
 ```
 
 ---
@@ -574,7 +576,7 @@ Strategic plan and per-phase execution docs live in Obsidian at `~/Neal Brain/05
 2. **Determine if it's blocklisted.** If yes, you (Claude Code) do it directly. No delegation.
 3. **Determine if it's small.** If a one-file, ≤30-line change where the spec would be as long as the code, you do it directly.
 4. **Determine if it's architecture/security-shaped.** If yes, you do it directly.
-5. **Otherwise, write a task spec for Kimi.** Place in `tasks/TASK-NNN-<short-name>.md`. Tell Neal you've written a spec, give him the path, and let him decide whether to send it to Kimi or Codex (or do it directly if he prefers).
+5. **Otherwise, write a task spec for Kimi.** Place in `tasks/TASK-NNN-<short-name>.md`. Tell Neal you've written a spec, give him the path, and let him decide whether to send it to Kimi or Gemini (or do it directly if he prefers).
 6. **When Neal returns with worker output for review,** review against the spec and this file's conventions. Approve and merge, fix and merge, or reject with notes.
 
 Bias toward doing work yourself for small things. The overhead of writing a spec, reviewing output, and possibly fixing it can easily exceed the cost of just writing the code directly. The orchestration workflow shines on volume (lots of similar components, repetitive transformations, bulk scaffolding) — not on one-offs.
