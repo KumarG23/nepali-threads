@@ -157,3 +157,16 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths and did not add new npm deps.
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+- **`params` is awaited** via the Next 15 Promise pattern: `const { slug } = await params;`. Both `generateMetadata` and the page component use this signature.
+- **Data fetch uses `getPayload({ config })`** with the `@payload-config` alias, matching the admin route pattern. No relative path rewrite.
+- **`notFound()` from `next/navigation`** handles missing pages — throws a special error that Next catches and renders the nearest `not-found.tsx`.
+- **`Page` type imported from `@/payload-types`** and used to type the query result (`result.docs[0] as Page | undefined`).
+- **Aspect ratio mapping for image blocks:** `full-width` → `landscape` (cinematic, wide), `left`/`center` → `square` (balanced, contained). Full-width images benefit from the wider ratio since they span the reading column; centered/left images look fine as squares. This is a defensible default that can be revised once real content is in.
+- **Image-block `alignment` is unimplemented visually** — left/center/full-width all render the same width (max-w-3xl container). Left/right text-wrap is a deferred polish concern flagged for a future task.
+- **`generateMetadata` + page-body double-fetch** is a known follow-up. Next runs them independently; React `cache()` could deduplicate the `getPayload({ config })` + `payload.find()` call. Skipped per spec; flagged here.
+- **No blocklisted paths touched.**
+- **No new npm dependencies added.** `@payloadcms/richtext-lexical/react` was already a project dependency.
+- **`npm run check` passes with exit 0.**
