@@ -17,7 +17,7 @@ export function Header({
   ref,
 }: HeaderProps) {
   const navLinkClasses =
-    "font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors";
+    "font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded";
 
   return (
     <header
@@ -31,7 +31,7 @@ export function Header({
         <div className="flex flex-col items-center gap-3 md:flex-row md:items-center md:justify-between">
           <Link
             href="/"
-            className="font-serif text-h2 text-neutral-ink hover:text-brand-red-700 transition-colors"
+            className="font-serif text-h2 text-neutral-ink hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
           >
             nepali threads
           </Link>
@@ -50,7 +50,7 @@ export function Header({
 
           <Link
             href="/cart"
-            className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"
           >
             {cartCount > 0 ? `Cart (${cartCount})` : "Cart"}
           </Link>
