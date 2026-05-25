@@ -6,6 +6,7 @@ import Card from "@/components/ui/Card";
 import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
 import Footer from "@/components/storefront/Footer";
+import Header from "@/components/storefront/Header";
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
 import {
@@ -309,6 +310,17 @@ export default function DesignTestPage() {
                 aspectRatio="tall"
               />
             </div>
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Header</h2>
+          <p className="font-sans text-small text-neutral-ink/60 mb-4">
+            Full-width on real pages; here showing both the default and the with-items state.
+          </p>
+          <div className="-mx-8 space-y-6">
+            <Header />
+            <Header cartCount={3} />
           </div>
         </section>
 

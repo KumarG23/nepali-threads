@@ -1,0 +1,63 @@
+import Link from "next/link";
+import React from "react";
+
+function cx(...args: (string | false | undefined | null)[]): string {
+  return args.filter(Boolean).join(" ");
+}
+
+export interface HeaderProps {
+  cartCount?: number;
+  className?: string;
+  ref?: React.Ref<HTMLElement>;
+}
+
+export function Header({
+  cartCount = 0,
+  className,
+  ref,
+}: HeaderProps) {
+  const navLinkClasses =
+    "font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors";
+
+  return (
+    <header
+      ref={ref}
+      className={cx(
+        "bg-neutral-cream border-b border-neutral-ink/10",
+        className
+      )}
+    >
+      <div className="mx-auto max-w-7xl px-6 py-4 sm:px-8 lg:px-12 lg:py-5">
+        <div className="flex flex-col items-center gap-3 md:flex-row md:items-center md:justify-between">
+          <Link
+            href="/"
+            className="font-serif text-h2 text-neutral-ink hover:text-brand-red-700 transition-colors"
+          >
+            nepali threads
+          </Link>
+
+          <nav aria-label="Primary" className="flex flex-wrap justify-center gap-4 md:gap-6">
+            <Link href="/shop" className={navLinkClasses}>
+              Shop
+            </Link>
+            <Link href="/shop?filter=new" className={navLinkClasses}>
+              New
+            </Link>
+            <Link href="/about" className={navLinkClasses}>
+              Story
+            </Link>
+          </nav>
+
+          <Link
+            href="/cart"
+            className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors"
+          >
+            {cartCount > 0 ? `Cart (${cartCount})` : "Cart"}
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
