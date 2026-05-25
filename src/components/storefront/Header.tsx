@@ -1,18 +1,18 @@
 import Link from "next/link";
 import React from "react";
 
+import { CartCount } from "./_cart-count";
+
 function cx(...args: (string | false | undefined | null)[]): string {
   return args.filter(Boolean).join(" ");
 }
 
 export interface HeaderProps {
-  cartCount?: number;
   className?: string;
   ref?: React.Ref<HTMLElement>;
 }
 
 export function Header({
-  cartCount = 0,
   className,
   ref,
 }: HeaderProps) {
@@ -52,7 +52,7 @@ export function Header({
             href="/cart"
             className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"
           >
-            {cartCount > 0 ? `Cart (${cartCount})` : "Cart"}
+            <CartCount />
           </Link>
         </div>
       </div>

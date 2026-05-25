@@ -107,7 +107,14 @@ export default async function ProductPage({
               <RichText data={product.description} />
             </div>
           )}
-          <AddToCartButton />
+          <AddToCartButton
+            productId={product.id}
+            productSlug={product.slug}
+            name={product.name}
+            priceCents={product.basePrice}
+            imageSrc={firstImage?.url ?? ""}
+            imageAlt={firstImage?.alt ?? product.name}
+          />
         </div>
       </div>
     </article>
