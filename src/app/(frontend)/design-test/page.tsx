@@ -293,14 +293,14 @@ export default function DesignTestPage() {
             <div className="max-w-5xl mx-auto">
               <Hero
                 imageSrc={PLACEHOLDER_IMAGE}
-                imageAlt="Minimal hero example"
+                imageAlt="A handwoven wool cardigan draped over a wooden chair"
                 heading="The autumn line is here."
               />
             </div>
             <div className="max-w-5xl mx-auto">
               <Hero
                 imageSrc={PLACEHOLDER_IMAGE}
-                imageAlt="Tall hero example with full content"
+                imageAlt="A handwoven wool cardigan draped over a wooden chair"
                 eyebrow="New collection"
                 heading="Made by hand in Nepal"
                 body="A small studio releasing one collection at a time, woven with the same care our families taught us."
