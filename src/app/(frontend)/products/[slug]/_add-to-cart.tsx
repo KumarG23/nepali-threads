@@ -1,16 +1,26 @@
 "use client";
 
 import Button from "@/components/ui/Button";
+import { useCart } from "@/store/cart";
 
-export function AddToCartButton() {
+type AddToCartButtonProps = {
+  productId: number;
+  productSlug: string;
+  name: string;
+  priceCents: number;
+  imageSrc: string;
+  imageAlt: string;
+};
+
+export function AddToCartButton(props: AddToCartButtonProps) {
+  const addItem = useCart((state) => state.addItem);
+
   return (
     <Button
       variant="primary"
       size="lg"
       className="w-full sm:w-auto"
-      onClick={() => {
-        window.alert("Cart isn't wired up yet — Phase 3.");
-      }}
+      onClick={() => addItem(props)}
     >
       Add to cart
     </Button>

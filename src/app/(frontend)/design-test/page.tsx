@@ -316,11 +316,10 @@ export default function DesignTestPage() {
         <section className="mb-16">
           <h2 className="font-serif text-h2 mb-6">Header</h2>
           <p className="font-sans text-small text-neutral-ink/60 mb-4">
-            Full-width on real pages; here showing both the default and the with-items state.
+            Full-width on real pages; here showing the default state.
           </p>
-          <div className="-mx-8 space-y-6">
+          <div className="-mx-8">
             <Header />
-            <Header cartCount={3} />
           </div>
         </section>
 
