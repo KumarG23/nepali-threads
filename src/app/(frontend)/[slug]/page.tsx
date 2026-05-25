@@ -55,13 +55,7 @@ export default async function PagePage({
       <div className="space-y-8">
         {page.blocks?.map((block, i) => {
           if (block.blockType === "richText") {
-            return (
-              <RichText
-                key={i}
-                data={block.content}
-                className="prose-base"
-              />
-            );
+            return <RichText key={i} data={block.content} />;
           }
 
           if (block.blockType === "image") {
