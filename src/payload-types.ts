@@ -104,8 +104,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    homepageHero: HomepageHero;
+  };
+  globalsSelect: {
+    homepageHero: HomepageHeroSelect<false> | HomepageHeroSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -966,6 +970,56 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Controls the big image and text block at the top of the homepage. Any field left blank uses the built-in default.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepageHero".
+ */
+export interface HomepageHero {
+  id: number;
+  /**
+   * Small uppercased line above the headline (e.g. 'New collection'). Leave blank to keep the default.
+   */
+  eyebrow?: string | null;
+  /**
+   * Main headline. Keep it short — one sentence works best. Leave blank to keep the default.
+   */
+  heading?: string | null;
+  /**
+   * One or two sentences below the headline. Leave blank to keep the default.
+   */
+  body?: string | null;
+  /**
+   * Hero background image. Landscape works best. Leave blank to keep the current default.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Text on the call-to-action button (e.g. 'Shop the collection'). Leave blank to keep the default.
+   */
+  ctaLabel?: string | null;
+  /**
+   * Where the button goes when clicked. Use a path like /shop or /categories/cardigans. Leave blank to keep the default (/shop).
+   */
+  ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepageHero_select".
+ */
+export interface HomepageHeroSelect<T extends boolean = true> {
+  eyebrow?: T;
+  heading?: T;
+  body?: T;
+  image?: T;
+  ctaLabel?: T;
+  ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

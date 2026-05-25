@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { getPayload } from "payload";
+
+import config from "@payload-config";
 
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
@@ -9,20 +12,51 @@ export const metadata: Metadata = {
     "Handmade clothing from Nepal. A small studio releasing one collection at a time.",
 };
 
+// Fetches the homepage hero global at request time so admin edits in the
+// Payload UI propagate immediately, instead of being baked in at build time.
+// Matches the dynamic-rendering choice of /shop and /categories/[slug] —
+// both fetch fresh from Payload on every request.
+export const dynamic = "force-dynamic";
+
+const FALLBACK_HERO_IMAGE =
+  "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
+const FALLBACK_HERO_IMAGE_ALT =
+  "A handwoven wool cardigan draped over a wooden chair";
+const FALLBACK_EYEBROW = "New collection";
+const FALLBACK_HEADING = "Made by hand in Nepal";
+const FALLBACK_BODY =
+  "A small studio releasing one collection at a time, woven with the same care our families taught us.";
+const FALLBACK_CTA_LABEL = "Shop the collection";
+const FALLBACK_CTA_HREF = "/shop";
+
 const PLACEHOLDER_IMAGE =
   "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const payload = await getPayload({ config });
+  const hero = await payload.findGlobal({ slug: "homepageHero" });
+
+  const heroImageObj =
+    hero.image && typeof hero.image === "object" ? hero.image : null;
+
+  // Use `||` (not `??`) so an empty-string value from a cleared admin field
+  // also falls back to the default. Payload returns nullish for never-set
+  // fields and empty strings for cleared fields; both should fall back.
+  const heroProps = {
+    imageSrc: heroImageObj?.url || FALLBACK_HERO_IMAGE,
+    imageAlt: heroImageObj?.alt || FALLBACK_HERO_IMAGE_ALT,
+    eyebrow: hero.eyebrow || FALLBACK_EYEBROW,
+    heading: hero.heading || FALLBACK_HEADING,
+    body: hero.body || FALLBACK_BODY,
+    cta: {
+      label: hero.ctaLabel || FALLBACK_CTA_LABEL,
+      href: hero.ctaHref || FALLBACK_CTA_HREF,
+    },
+  };
+
   return (
     <>
-      <Hero
-        imageSrc={PLACEHOLDER_IMAGE}
-        imageAlt="A handwoven wool cardigan draped over a wooden chair"
-        eyebrow="New collection"
-        heading="Made by hand in Nepal"
-        body="A small studio releasing one collection at a time, woven with the same care our families taught us."
-        cta={{ label: "Shop the collection", href: "/shop" }}
-      />
+      <Hero {...heroProps} />
 
       <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-12 lg:py-24">
         <h2 className="font-serif text-h1 text-neutral-ink mb-2">

@@ -25,6 +25,7 @@ import { Pages } from "./collections/Pages";
 import { ProductVariants } from "./collections/ProductVariants";
 import { Products } from "./collections/Products";
 import { Users } from "./collections/Users";
+import { HomepageHero } from "./globals/HomepageHero";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -49,6 +50,7 @@ export default buildConfig({
     GiftCardRedemptions,
     Pages,
   ],
+  globals: [HomepageHero],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
