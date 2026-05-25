@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getPayload } from "payload";
+import { RichText } from "@payloadcms/richtext-lexical/react";
 
-import Badge from "@/components/ui/Badge";
+import config from "@payload-config";
+
 import Image from "@/components/ui/Image";
+import type { Product } from "@/payload-types";
 
 import { AddToCartButton } from "./_add-to-cart";
 
@@ -12,27 +17,32 @@ function formatPriceCents(cents: number): string {
   }).format(cents / 100);
 }
 
-const SAMPLE_PRODUCT = {
-  name: "Wool Cardigan",
-  priceCents: 14500,
-  imageSrc: "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg",
-  imageAlt:
-    "Handwoven wool cardigan in deep red, draped over a wooden chair",
-  description:
-    "A heavyweight handwoven cardigan in slow-dyed wool. Made one at a time in a small studio outside Kathmandu. Loose, warm, and made to last decades.",
-  badge: null as {
-    label: string;
-    variant: "neutral" | "primary" | "accent" | "muted";
-  } | null,
-  category: "Cardigans",
-  inventoryNote:
-    "Only a few made — once they're gone, they're gone for the season.",
-};
+async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const payload = await getPayload({ config });
+  const result = await payload.find({
+    collection: "products",
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { status: { equals: "published" } },
+      ],
+    },
+    limit: 1,
+  });
+  return result.docs[0];
+}
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return { title: "Product not found" };
   return {
-    title: SAMPLE_PRODUCT.name,
-    description: SAMPLE_PRODUCT.description,
+    title: product.seoTitle ?? product.name,
+    description: product.seoDescription ?? undefined,
   };
 }
 
@@ -42,48 +52,56 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) notFound();
 
-  // Slug captured for TASK-018; all slugs return the same sample product.
-  void slug;
+  const firstImage =
+    product.images?.[0]?.image &&
+    typeof product.images[0].image === "object"
+      ? product.images[0].image
+      : null;
 
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         {/* Left: image */}
         <div>
-          <Image
-            src={SAMPLE_PRODUCT.imageSrc}
-            alt={SAMPLE_PRODUCT.imageAlt}
-            aspectRatio="portrait"
-            rounded="lg"
-            priority
-          />
+          {firstImage ? (
+            <Image
+              src={firstImage.url ?? ""}
+              alt={firstImage.alt ?? product.name}
+              aspectRatio="portrait"
+              rounded="lg"
+              priority
+            />
+          ) : (
+            <div className="flex aspect-[3/4] items-center justify-center rounded-lg bg-neutral-ink/10 font-sans text-small text-neutral-ink/40">
+              No image yet
+            </div>
+          )}
         </div>
 
         {/* Right: info, sticky on desktop */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <p className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 mb-2">
-            {SAMPLE_PRODUCT.category}
-          </p>
+          {typeof product.category === "object" &&
+            product.category?.name && (
+              <p className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 mb-2">
+                {product.category.name}
+              </p>
+            )}
           <h1 className="font-serif text-display text-neutral-ink mb-4">
-            {SAMPLE_PRODUCT.name}
+            {product.name}
           </h1>
           <div className="flex items-center gap-3 mb-6">
             <p className="font-serif text-h1 text-neutral-ink">
-              {formatPriceCents(SAMPLE_PRODUCT.priceCents)}
+              {formatPriceCents(product.basePrice)}
             </p>
-            {SAMPLE_PRODUCT.badge && (
-              <Badge variant={SAMPLE_PRODUCT.badge.variant} size="md">
-                {SAMPLE_PRODUCT.badge.label}
-              </Badge>
-            )}
           </div>
-          <p className="font-sans text-body text-neutral-ink/80 leading-relaxed mb-6">
-            {SAMPLE_PRODUCT.description}
-          </p>
-          <p className="font-sans text-small text-brand-gold-700 italic mb-8">
-            {SAMPLE_PRODUCT.inventoryNote}
-          </p>
+          {product.description && (
+            <div className="font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
+              <RichText data={product.description} />
+            </div>
+          )}
           <AddToCartButton />
         </div>
       </div>
