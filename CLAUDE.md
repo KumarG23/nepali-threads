@@ -32,11 +32,21 @@ Use Kimi for the **majority** of coding work. Kimi K2.6 is an open-weights front
 
 Drain Kimi budget first when delegating. Neal will tell us when limits are hit.
 
-### Tier 2 — Gemini 3.1 Pro (fallback worker)
+### Tier 2 — Gemini 3.1 Pro (specialized junior worker + Kimi fallback)
 
 Lives in: terminal via Gemini CLI on Neal's MacBook (or web UI — pick whichever surface is convenient for the task at hand).
 
-Use Gemini when Kimi is exhausted, rate-limited, or specifically a better fit (very-long-context reads across many files, multimodal work involving screenshots / mockups / product photography, tasks where Gemini's reasoning depth shines). Gemini 3.1 Pro is Google's frontier coding-capable model with a ~2M token context window and benchmarks roughly comparable to Kimi K2.6 on SWE-Bench Pro. Strengths: long context, multimodal, careful reasoning. Treat as a capable junior, same as Kimi — same review rules, same blocklist, same commit prefix conventions (`[gemini]` instead of `[kimi]`).
+**Treat Gemini as "Kimi backup plus special tool," not "Kimi #2."** Gemini 3.1 Pro is Google's frontier coding-capable model with a ~2M token context window and benchmarks roughly comparable to Kimi K2.6 on SWE-Bench Pro — for routine scoped implementation, the two are interchangeable. The reason Gemini has its own tier is its distinct strengths.
+
+**Reach for Gemini when:**
+- **Kimi is exhausted or rate-limited.** Direct fallback for routine tasks.
+- **Very-long-context reads across many files.** Audits, repo-wide consistency checks, multi-file refactor planning, summarizing task history or design docs.
+- **Multimodal work.** Reasoning over screenshots, design mockups, or product photography. Comparing a visual implementation against a reference image. Anything where the task input includes an image.
+- **Carefully-scoped implementation where the long-context window is actually load-bearing** — e.g. a refactor that needs to see ten files at once, not just two.
+
+**Otherwise prefer Kimi for routine scoped implementation** — both produce comparable code quality on framework-shaped tasks; Kimi is the established default with calibrated review-fix rates through TASK-018.
+
+Gemini stays under the same junior-worker constraints as Kimi: branch-only commits (`local/TASK-NNN-...`), no direct merge to `main`, respect `.localllm-blocklist` (the `commit-msg` hook enforces this on `[gemini]` commits), append `## Notes for Reviewer (Gemini)` to the task spec file, reviewer (Claude Code) runs `npm run check` and inspects the diff before merge.
 
 Replaced Codex (GPT-5.5 / ChatGPT Plus) as the Tier 2 worker on 2026-05-24 after Kimi usage tracking confirmed we have ample weekly Kimi budget; the second-tier slot is now better-spent on Gemini's distinct strengths (long context, multimodal) than on a near-Kimi-equivalent fallback.
 
@@ -54,7 +64,7 @@ You, when reading this. Use sparingly — Claude API tokens are the most expensi
 - Generating database migrations (`migrations/` is blocklisted)
 - Updates to this file (CLAUDE.md is the canonical doc; updates flow through review)
 
-When in doubt about whether to do something directly or hand it off: if the task is in the blocklist, you do it. If the spec would be longer than the code, you do it. Otherwise, write a spec for Kimi.
+When in doubt about whether to do something directly or hand it off: if the task is in the blocklist, you do it. If the spec would be longer than the code, you do it. Otherwise, write a spec for the selected junior worker (Kimi by default; Gemini when one of its strengths above applies — see "Reach for Gemini when").
 
 ### Retired — Qwen 2.5-Coder 14B (local, do not revive)
 
@@ -83,6 +93,8 @@ We ran a Phase 1 calibration test with Qwen 14B as a local junior dev. It failed
    - Regular `feat:` / `fix:` / `chore:` when Claude Code or Neal worked directly
 
 Don't queue multiple tasks for the same worker in parallel. Review-and-merge one before sending the next.
+
+**Stricter scrutiny for first-of-kind data-backed patterns.** When a task introduces a new pattern that will be copied repeatedly later — the first Payload-fetching server component (TASK-016), the first Server Action, the first checkout step, the first instance of any architectural shape that downstream tasks lift directly — review it with extra care. Catching a subtle bug at the first instance prevents copying it into the next five tasks. Junior workers (Kimi/Gemini) MAY implement first-of-kind patterns, but the reviewer should expect to spend more time on them than on routine compositions.
 
 ---
 
@@ -577,10 +589,28 @@ Strategic plan and per-phase execution docs live in Obsidian at `~/Neal Brain/05
 2. **Determine if it's blocklisted.** If yes, you (Claude Code) do it directly. No delegation.
 3. **Determine if it's small.** If a one-file, ≤30-line change where the spec would be as long as the code, you do it directly.
 4. **Determine if it's architecture/security-shaped.** If yes, you do it directly.
-5. **Otherwise, write a task spec for Kimi.** Place in `tasks/TASK-NNN-<short-name>.md`. Tell Neal you've written a spec, give him the path, and let him decide whether to send it to Kimi or Gemini (or do it directly if he prefers).
+5. **Otherwise, write a task spec for the selected junior worker.** Place in `tasks/TASK-NNN-<short-name>.md`. Tell Neal you've written a spec, give him the path, and let him decide whether to send it to Kimi (the default) or Gemini (when one of its strengths from the Tier 2 section applies — long-context reads, multimodal, etc.). Either is acceptable; he may also do small things directly.
 6. **When Neal returns with worker output for review,** review against the spec and this file's conventions. Approve and merge, fix and merge, or reject with notes.
 
 Bias toward doing work yourself for small things. The overhead of writing a spec, reviewing output, and possibly fixing it can easily exceed the cost of just writing the code directly. The orchestration workflow shines on volume (lots of similar components, repetitive transformations, bulk scaffolding) — not on one-offs.
+
+---
+
+## Operational notes
+
+### After pulling changes that touch `package.json` or `package-lock.json`
+
+Always run:
+
+```bash
+npm install
+npm ls next @payloadcms/next --depth=0
+npm run check
+```
+
+Why: stale local `node_modules` can mask a teammate's dependency change. `npm install` reconciles the lockfile, `npm ls next @payloadcms/next --depth=0` confirms the framework + Payload versions resolved as expected (currently `next@15.5.18` via the override, `@payloadcms/next@3.84.1`), and `npm run check` runs typecheck + build against the freshly resolved tree. If `npm run check` passes against a stale `node_modules`, the result is misleading — you may be greenlighting a build against versions you don't actually have on disk.
+
+Same applies when switching branches that diverge on dependency state — don't trust a green check on a previously-installed tree.
 
 ---
 
