@@ -6,6 +6,11 @@ import Card from "@/components/ui/Card";
 import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
 import ProductCard from "@/components/storefront/ProductCard";
+import {
+  DemoCustomCopy,
+  DemoDefault,
+  DemoError,
+} from "./_newsletter-demos";
 
 const PLACEHOLDER_IMAGE =
   "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
@@ -259,6 +264,15 @@ export default function DesignTestPage() {
               imageSrc={PLACEHOLDER_IMAGE}
               imageAlt="Handwoven wool cardigan in deep red"
             />
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">NewsletterSignup</h2>
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+            <DemoDefault />
+            <DemoCustomCopy />
+            <DemoError />
           </div>
         </section>
       </div>
