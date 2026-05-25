@@ -8,12 +8,7 @@ function cx(...args: (string | false | undefined | null)[]): string {
   return args.filter(Boolean).join(" ");
 }
 
-function formatPriceCents(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
-}
+import { formatPriceCents } from "@/lib/format";
 
 export interface ProductCardProps {
   name: string;
