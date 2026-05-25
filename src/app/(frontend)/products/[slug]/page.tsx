@@ -6,6 +6,7 @@ import { RichText } from "@payloadcms/richtext-lexical/react";
 
 import config from "@payload-config";
 
+import ProductCard from "@/components/storefront/ProductCard";
 import type { Product } from "@/payload-types";
 
 import { AddToCartButton } from "./_add-to-cart";
@@ -63,6 +64,35 @@ export default async function ProductPage({
 
   const firstImage = galleryImages[0] ?? null;
 
+  const payload = await getPayload({ config });
+
+  const categoryId =
+    typeof product.category === "object" && product.category?.id
+      ? product.category.id
+      : null;
+
+  const relatedProductsResult = categoryId
+    ? await payload.find({
+        collection: "products",
+        where: {
+          and: [
+            { status: { equals: "published" } },
+            { category: { equals: categoryId } },
+            { id: { not_equals: product.id } },
+          ],
+        },
+        limit: 4,
+        sort: "-createdAt",
+      })
+    : null;
+
+  const relatedProducts = (relatedProductsResult?.docs ?? []) as Product[];
+
+  const renderableRelated = relatedProducts.filter((p) => {
+    const img = p.images?.[0]?.image;
+    return img && typeof img === "object" && img.url;
+  });
+
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
@@ -109,6 +139,46 @@ export default async function ProductPage({
           />
         </div>
       </div>
+
+      {renderableRelated.length > 0 && (
+        <section className="mt-16 border-t border-neutral-ink/10 pt-12 lg:mt-24 lg:pt-16">
+          <h2 className="font-serif text-h1 text-neutral-ink mb-2">
+            You may also like
+          </h2>
+          <p className="font-sans text-body text-neutral-ink/70 mb-8 max-w-xl">
+            More from this category.
+          </p>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {renderableRelated.map((related) => {
+              const firstImage =
+                related.images?.[0]?.image &&
+                typeof related.images[0].image === "object"
+                  ? related.images[0].image
+                  : null;
+
+              return (
+                <Link
+                  key={related.id}
+                  href={`/products/${related.slug}`}
+                  className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"
+                >
+                  <ProductCard
+                    name={related.name}
+                    priceCents={related.basePrice}
+                    imageSrc={firstImage?.url ?? ""}
+                    imageAlt={firstImage?.alt ?? related.name}
+                    badge={
+                      related.status === "archived"
+                        ? { label: "Sold out", variant: "muted" }
+                        : undefined
+                    }
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </article>
   );
 }
