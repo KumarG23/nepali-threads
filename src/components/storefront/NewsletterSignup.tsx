@@ -36,13 +36,14 @@ export function NewsletterSignup({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!email.trim()) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
 
     setStatus("submitting");
     setErrorMessage(undefined);
 
     try {
-      await onSubscribe(email);
+      await onSubscribe(trimmed);
       setStatus("success");
     } catch (err) {
       setStatus("error");
