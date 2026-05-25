@@ -5,8 +5,10 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
+import ProductCard from "@/components/storefront/ProductCard";
 
-const PLACEHOLDER_IMAGE = "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
+const PLACEHOLDER_IMAGE =
+  "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
 
 export default function DesignTestPage() {
   const variants = ["primary", "secondary", "ghost"] as const;
@@ -212,6 +214,51 @@ export default function DesignTestPage() {
                 </span>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">ProductCard: Grid</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <ProductCard
+              name="Wool Cardigan"
+              priceCents={14500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Handwoven wool cardigan in deep red"
+            />
+            <ProductCard
+              name="Silk Scarf"
+              priceCents={6500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Lightweight silk scarf with gold trim"
+              badge={{ label: "New", variant: "accent" }}
+            />
+            <ProductCard
+              name="Handwoven Sweater"
+              priceCents={22000}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Thick handwoven sweater in natural cream"
+              badge={{ label: "Sold out", variant: "muted" }}
+            />
+            <ProductCard
+              name="Cotton Tunic"
+              priceCents={9500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Breathable cotton tunic for warm weather"
+              badge={{ label: "Sale", variant: "primary" }}
+            />
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">ProductCard: Single</h2>
+          <div className="max-w-sm">
+            <ProductCard
+              name="Wool Cardigan"
+              priceCents={14500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Handwoven wool cardigan in deep red"
+            />
           </div>
         </section>
       </div>
