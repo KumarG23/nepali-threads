@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
 import { RichText } from "@payloadcms/richtext-lexical/react";
@@ -84,10 +85,14 @@ export default async function ProductPage({
         {/* Right: info, sticky on desktop */}
         <div className="lg:sticky lg:top-24 lg:self-start">
           {typeof product.category === "object" &&
-            product.category?.name && (
-              <p className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 mb-2">
+            product.category?.name &&
+            product.category?.slug && (
+              <Link
+                href={`/categories/${product.category.slug}`}
+                className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 hover:text-brand-red-700 transition-colors mb-2 inline-block"
+              >
                 {product.category.name}
-              </p>
+              </Link>
             )}
           <h1 className="font-serif text-display text-neutral-ink mb-4">
             {product.name}
