@@ -68,7 +68,7 @@ export function Footer({
             </p>
             <Link
               href="/about"
-              className="text-brand-gold-400 hover:text-brand-gold-300 mt-4 inline-block transition-colors"
+              className="text-brand-gold-400 hover:text-brand-gold-300 mt-4 inline-block transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
             >
               Read our story →
             </Link>
@@ -87,7 +87,7 @@ export function Footer({
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="block py-1 text-body text-neutral-cream/70 hover:text-neutral-cream transition-colors"
+                      className="block py-1 text-body text-neutral-cream/70 hover:text-neutral-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
                     >
                       {link.label}
                     </Link>
@@ -106,13 +106,13 @@ export function Footer({
           <div className="flex gap-4">
             <Link
               href="/privacy"
-              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors"
+              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
             >
               Privacy
             </Link>
             <Link
               href="/terms"
-              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors"
+              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
             >
               Terms
             </Link>
