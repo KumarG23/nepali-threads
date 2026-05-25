@@ -3,7 +3,10 @@
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
+
+const PLACEHOLDER_IMAGE = "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
 
 export default function DesignTestPage() {
   const variants = ["primary", "secondary", "ghost"] as const;
@@ -13,6 +16,8 @@ export default function DesignTestPage() {
   const inputSizes = ["sm", "md", "lg"] as const;
   const badgeVariants = ["neutral", "primary", "accent", "muted"] as const;
   const badgeSizes = ["sm", "md"] as const;
+  const imageRatios = ["square", "portrait", "landscape", "tall"] as const;
+  const imageRounded = ["none", "sm", "md", "lg"] as const;
 
   return (
     <main className="min-h-screen bg-neutral-cream p-8 text-neutral-ink">
@@ -169,6 +174,44 @@ export default function DesignTestPage() {
               <Badge variant="neutral">Handmade</Badge>
               <Badge variant="neutral">Nepal</Badge>
             </div>
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Images: Aspect Ratios</h2>
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            {imageRatios.map((ratio) => (
+              <div key={ratio} className="flex flex-col gap-2">
+                <Image
+                  src={PLACEHOLDER_IMAGE}
+                  alt={`${ratio} aspect ratio example`}
+                  aspectRatio={ratio}
+                  className="max-w-xs"
+                />
+                <span className="font-sans text-small text-neutral-ink/60">
+                  {ratio}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Images: Rounded Scale</h2>
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {imageRounded.map((r) => (
+              <div key={r} className="flex flex-col gap-2">
+                <Image
+                  src={PLACEHOLDER_IMAGE}
+                  alt={`${r} rounded corners example`}
+                  rounded={r}
+                  className="max-w-xs"
+                />
+                <span className="font-sans text-small text-neutral-ink/60">
+                  {r}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
       </div>
