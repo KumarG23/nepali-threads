@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Image from "@/components/ui/Image";
 import Input from "@/components/ui/Input";
+import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
 import {
   DemoCustomCopy,
@@ -273,6 +274,40 @@ export default function DesignTestPage() {
             <DemoDefault />
             <DemoCustomCopy />
             <DemoError />
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Hero</h2>
+          <div className="space-y-12">
+            <div className="max-w-5xl mx-auto">
+              <Hero
+                imageSrc={PLACEHOLDER_IMAGE}
+                imageAlt="A handwoven wool cardigan draped over a wooden chair"
+                eyebrow="New collection"
+                heading="Made by hand in Nepal"
+                body="A small studio releasing one collection at a time, woven with the same care our families taught us."
+                cta={{ label: "Shop the collection", href: "/shop" }}
+              />
+            </div>
+            <div className="max-w-5xl mx-auto">
+              <Hero
+                imageSrc={PLACEHOLDER_IMAGE}
+                imageAlt="A handwoven wool cardigan draped over a wooden chair"
+                heading="The autumn line is here."
+              />
+            </div>
+            <div className="max-w-5xl mx-auto">
+              <Hero
+                imageSrc={PLACEHOLDER_IMAGE}
+                imageAlt="A handwoven wool cardigan draped over a wooden chair"
+                eyebrow="New collection"
+                heading="Made by hand in Nepal"
+                body="A small studio releasing one collection at a time, woven with the same care our families taught us."
+                cta={{ label: "Shop the collection", href: "/shop" }}
+                aspectRatio="tall"
+              />
+            </div>
           </div>
         </section>
       </div>

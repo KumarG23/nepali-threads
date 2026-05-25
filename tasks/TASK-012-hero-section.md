@@ -106,3 +106,33 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths and did not add new npm deps.
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+**Server component confirmation:**
+- Hero is a server component — no `"use client"` directive. It composes `Image` (server component) and `Link` from `next/link` into a purely presentational layout. No state, no effects, no event handlers.
+
+**CTA rendering:**
+- CTA is rendered as `<Link>` from `next/link` with the full Tailwind class string copied from Button's primary-lg variant. NOT a `<Button>` inside a `<Link>` — that would produce invalid HTML (`<button>` inside `<a>`). The Link carries its own `href` and is keyboard-focusable with the gold `focus-visible:ring-brand-gold-400` ring.
+
+**Tailwind class duplication:**
+- The Hero CTA duplicates the primary-lg Button classes inline. Considered extracting to a shared constant (e.g. `const buttonPrimaryLg = "..."`), but the spec explicitly says to accept the duplication for now and flag it. A future polymorphic `Button` refactor (supporting `as="a"`) would eliminate this. Did not extract to avoid premature abstraction — there's only one duplicated consumer today.
+
+**Text-overlay positioning:**
+- Bottom-left absolute positioning. The `<section>` is `relative`. Inside it: (1) `Image` fills the section, (2) gradient overlay `absolute inset-0` darkens the bottom via `bg-gradient-to-t from-neutral-ink/70 via-neutral-ink/30 to-transparent`, (3) text container `absolute inset-0 flex flex-col justify-end` with responsive padding (`p-8 sm:p-12 lg:p-16`). The inner text wrapper uses `max-w-2xl` to keep headlines from running edge-to-edge.
+
+**A11y / `<h1>` decision:**
+- Used `<h1>` for the heading as specified. Hero is intended as the page's top section, so `<h1>` is correct for the document outline. The spec explicitly warned against using `<h2>` "to be safe." Consumers are expected to render at most one Hero per page (conventional, not enforced).
+
+**Prop API uncertainty:**
+- None. The curated prop set felt right for a single-variant hero. `aspectRatio` is limited to `"landscape" | "tall"` — no `"square"` or `"portrait"` because those don't make sense for full-bleed hero banners.
+
+**Layout uncertainty:**
+- One minor call: the gradient overlay uses `from-neutral-ink/70` which is fairly dark. This ensures text legibility even on light images, but it does darken the product photo noticeably. Considered `from-neutral-ink/50` for a lighter touch, but `70` provides safer contrast. Flagging in case the design review wants a lighter gradient.
+
+**Blocklist and deps confirmation:**
+- Did not touch any blocklisted paths. Work stayed within `src/components/storefront/Hero.tsx` and `src/app/(frontend)/design-test/page.tsx`. No new npm dependencies.
+
+**Build verification:**
+- `npm run typecheck` clean.
+- `npm run check` exit 0, `/design-test` statically generated.
