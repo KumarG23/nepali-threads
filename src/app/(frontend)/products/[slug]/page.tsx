@@ -11,12 +11,7 @@ import type { Product } from "@/payload-types";
 
 import { AddToCartButton } from "./_add-to-cart";
 
-function formatPriceCents(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
-}
+import { formatPriceCents } from "@/lib/format";
 
 async function getProductBySlug(slug: string): Promise<Product | undefined> {
   const payload = await getPayload({ config });
