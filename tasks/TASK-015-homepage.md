@@ -90,3 +90,15 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths and did not add new npm deps.
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+- **Next.js template placeholder fully removed.** The old `page.tsx` had `import Image from "next/image"`, `Geist` references (in layout, not page), Next/Vercel logos, "Get started" boilerplate, and template footer links. All deleted. The new file starts fresh with only the homepage sections.
+- **Page is a server component** — no `"use client"`.
+- **Mission section copy:** I used the suggested strings exactly as written in the spec. They felt right for the brand voice — "A small studio, on purpose." is confident without being corporate, and the body copy connects craft to fair pay directly. No changes made.
+- **Layout notes:** The Hero sits flush under the Header since the layout renders `<Header />` then `<main>{children}</main>` with no gap. The Hero's `rounded="none"` and full-width behavior reads correctly. The `bg-neutral-ink/5` mission section provides subtle visual separation from the cream background without competing with the Hero or product grid. Padding rhythm (`py-16 lg:py-24`) matches the featured products section for vertical consistency.
+- **No second `<h1>`** — the page's only `<h1>` is inside Hero. Featured products and mission section both use `<h2>`.
+- **No `<Link>` wrapping ProductCard** — each ProductCard renders as a `Card` (flat variant, no padding) containing an Image + text. The spec's instruction to not wrap in Link is followed; click-through to product detail is a future task.
+- **No blocklisted paths touched.**
+- **No new npm dependencies added.**
+- **`npm run check` passes with exit 0.**
