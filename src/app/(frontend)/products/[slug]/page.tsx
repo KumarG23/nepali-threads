@@ -98,7 +98,7 @@ export default async function ProductPage({
             </p>
           </div>
           {product.description && (
-            <div className="font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
+            <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
               <RichText data={product.description} />
             </div>
           )}
