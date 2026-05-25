@@ -1,5 +1,6 @@
 // TEMP: design-system smoke test page, delete once primitives are stable.
 
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
@@ -10,6 +11,8 @@ export default function DesignTestPage() {
   const cardVariants = ["elevated", "bordered", "flat"] as const;
   const cardPaddings = ["none", "sm", "md", "lg"] as const;
   const inputSizes = ["sm", "md", "lg"] as const;
+  const badgeVariants = ["neutral", "primary", "accent", "muted"] as const;
+  const badgeSizes = ["sm", "md"] as const;
 
   return (
     <main className="min-h-screen bg-neutral-cream p-8 text-neutral-ink">
@@ -92,10 +95,7 @@ export default function DesignTestPage() {
         <section className="mb-16">
           <h2 className="font-serif text-h2 mb-6">Inputs: States</h2>
           <div className="mx-auto flex max-w-md flex-col gap-6">
-            <Input
-              label="Default"
-              placeholder="Type something..."
-            />
+            <Input label="Default" placeholder="Type something..." />
             <Input
               label="With hint"
               hint="This is a helpful hint about the field."
@@ -106,11 +106,7 @@ export default function DesignTestPage() {
               error="This field is required."
               placeholder="Type something..."
             />
-            <Input
-              label="Required"
-              required
-              placeholder="Type something..."
-            />
+            <Input label="Required" required placeholder="Type something..." />
             <Input
               label="Disabled"
               disabled
@@ -130,6 +126,49 @@ export default function DesignTestPage() {
                 placeholder={`${s} input`}
               />
             ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Badges: Variants × Sizes</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {badgeSizes.flatMap((size) =>
+              badgeVariants.map((variant) => (
+                <div
+                  key={`${variant}-${size}`}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <Badge variant={variant} size={size}>
+                    {variant}
+                  </Badge>
+                  <span className="font-sans text-[0.6875rem] text-neutral-ink/50">
+                    {variant} · {size}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <h2 className="font-serif text-h2 mb-6">Badges: In Context</h2>
+          <div className="space-y-4">
+            <h3 className="font-serif text-h2">
+              Wool Cardigan <Badge variant="accent">New</Badge>
+            </h3>
+            <p className="font-sans text-body">
+              Handwoven sweater{" "}
+              <Badge variant="muted">Sold out</Badge>
+            </p>
+            <p className="font-sans text-body">
+              Silk scarf{" "}
+              <Badge variant="primary">Sale</Badge>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="neutral">Wool</Badge>
+              <Badge variant="neutral">Handmade</Badge>
+              <Badge variant="neutral">Nepal</Badge>
+            </div>
           </div>
         </section>
       </div>
