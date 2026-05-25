@@ -6,10 +6,10 @@ import { RichText } from "@payloadcms/richtext-lexical/react";
 
 import config from "@payload-config";
 
-import Image from "@/components/ui/Image";
 import type { Product } from "@/payload-types";
 
 import { AddToCartButton } from "./_add-to-cart";
+import { PdpGallery } from "./_pdp-gallery";
 
 import { formatPriceCents } from "@/lib/format";
 
@@ -51,30 +51,27 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const firstImage =
-    product.images?.[0]?.image &&
-    typeof product.images[0].image === "object"
-      ? product.images[0].image
-      : null;
+  const galleryImages = (product.images ?? [])
+    .map((entry) => {
+      const img = entry?.image;
+      if (img && typeof img === "object" && img.url) {
+        return { url: img.url, alt: img.alt ?? "" };
+      }
+      return null;
+    })
+    .filter((x): x is { url: string; alt: string } => x !== null);
+
+  const firstImage = galleryImages[0] ?? null;
 
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-        {/* Left: image */}
+        {/* Left: image gallery */}
         <div>
-          {firstImage ? (
-            <Image
-              src={firstImage.url ?? ""}
-              alt={firstImage.alt ?? product.name}
-              aspectRatio="portrait"
-              rounded="lg"
-              priority
-            />
-          ) : (
-            <div className="flex aspect-[3/4] items-center justify-center rounded-lg bg-neutral-ink/10 font-sans text-small text-neutral-ink/40">
-              No image yet
-            </div>
-          )}
+          <PdpGallery
+            images={galleryImages}
+            productName={product.name}
+          />
         </div>
 
         {/* Right: info, sticky on desktop */}
