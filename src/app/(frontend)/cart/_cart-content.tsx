@@ -13,6 +13,8 @@ import {
 
 export function CartPageContent() {
   const [hydrated, setHydrated] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const items = useCart((state) => state.items);
   const removeItem = useCart((state) => state.removeItem);
   const updateQuantity = useCart((state) => state.updateQuantity);
@@ -22,6 +24,33 @@ export function CartPageContent() {
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  async function handleCheckout() {
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(data.error ?? "Checkout failed.");
+      }
+      const data = (await response.json()) as { url: string };
+      window.location.href = data.url;
+    } catch (err) {
+      setCheckoutError(
+        err instanceof Error
+          ? err.message
+          : "Checkout failed. Please try again."
+      );
+      setCheckoutLoading(false);
+    }
+  }
 
   if (!hydrated) {
     return (
@@ -171,13 +200,20 @@ export function CartPageContent() {
 
             <button
               type="button"
-              onClick={() =>
-                window.alert("Checkout isn't wired up yet — Phase 3.")
-              }
-              className="mb-3 w-full inline-flex items-center justify-center rounded font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 bg-brand-red-600 text-neutral-cream hover:bg-brand-red-700 active:bg-brand-red-800 px-6 py-3 text-h3 min-h-[48px]"
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+              className="mb-3 w-full inline-flex items-center justify-center rounded font-sans font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 bg-brand-red-600 text-neutral-cream hover:bg-brand-red-700 active:bg-brand-red-800 disabled:opacity-60 disabled:cursor-not-allowed px-6 py-3 text-h3 min-h-[48px]"
             >
-              Checkout
+              {checkoutLoading ? "Redirecting…" : "Checkout"}
             </button>
+            {checkoutError && (
+              <p
+                className="mb-3 font-sans text-small text-brand-red-700"
+                role="alert"
+              >
+                {checkoutError}
+              </p>
+            )}
 
             <Link
               href="/shop"
