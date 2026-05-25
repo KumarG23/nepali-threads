@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+
+import Footer from "@/components/storefront/Footer";
+import Header from "@/components/storefront/Header";
+
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -25,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${inter.variable} font-sans antialiased`}
+        className={`${fraunces.variable} ${inter.variable} font-sans antialiased flex min-h-screen flex-col bg-neutral-cream text-neutral-ink`}
       >
-        {children}
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
