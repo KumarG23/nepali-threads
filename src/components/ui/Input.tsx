@@ -11,6 +11,10 @@ export interface InputProps extends React.ComponentPropsWithoutRef<"input"> {
   hint?: string;
   error?: string;
   inputSize?: "sm" | "md" | "lg";
+  // className applies to the outer wrapper <div> (lets consumers control
+  // layout — flex/grid sizing, margin, max-width). For styling the inner
+  // <input> itself (font, color, padding overrides), use inputClassName.
+  inputClassName?: string;
   ref?: React.Ref<HTMLInputElement>;
 }
 
@@ -23,6 +27,7 @@ export function Input({
   required,
   disabled,
   className,
+  inputClassName,
   ref,
   ...rest
 }: InputProps) {
@@ -72,7 +77,7 @@ export function Input({
         aria-describedby={describedBy}
         required={required}
         disabled={disabled}
-        className={cx(baseClasses, sizeClasses, stateClasses, disabledClasses)}
+        className={cx(baseClasses, sizeClasses, stateClasses, disabledClasses, inputClassName)}
         {...rest}
       />
       {error ? (

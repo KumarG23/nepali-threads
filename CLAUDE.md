@@ -185,6 +185,7 @@ These apply to any work building public-facing storefront UI (Phase 2 and beyond
 - **React 19 ref idiom.** This project is on React 19 (`react: 19.1.0`). Pass `ref` as a regular prop (`ref?: React.Ref<HTMLElement>`) — do NOT use `React.forwardRef`, which is being phased out. New components should follow the React 19 pattern from day one.
 - **Server Components by default.** Add `"use client"` only when a file genuinely needs it: state hooks, effects, event handlers from consumers, or browser-only APIs. A primitive that accepts `onClick` from a consumer needs `"use client"` at the top.
 - **Tone in UI copy.** Confident but warm. Never corporate. "Add to cart" not "Submit purchase." "Sold out" not "Inventory exhausted." Match the artisan/mission-forward brand voice across labels, empty states, and error messages.
+- **`className` on compound primitives applies to the OUTER wrapper.** Primitives that render a single element (Button → `<button>`, Card → `<div>`, Badge → `<span>`, Image → outer `<div>`) take `className` on that element. Primitives that render a wrapper + nested element(s) — currently just Input (wrapper + label + input + hint/error) — take `className` on the outer wrapper, because that's what consumers usually want to control (flex/grid layout, margin, max-width). For styling the inner element on a compound primitive, add an explicit `inner...ClassName` escape hatch (e.g. Input's `inputClassName`). Do not silently route `className` to the inner element when the wrapper exists — that breaks layout expectations.
 
 ---
 
