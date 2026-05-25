@@ -95,3 +95,30 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths and did not add new npm deps.
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+**Server component confirmation:**
+- ProductCard is a server component — no `"use client"` directive. It composes Card, Image, and Badge (all server components) into a presentational tile. No state, no effects, no event handlers.
+
+**`formatPriceCents` location:**
+- File-local in `src/components/storefront/ProductCard.tsx`. Not extracted to a shared utility. Uses `Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })` with `cents / 100`. Ready for consolidation in Phase 4 once a second consumer appears.
+
+**`overflow-hidden` on outer Card:**
+- Added via `className={cx("group overflow-hidden", className)}` on the Card wrapper. This clips the Image's `rounded="none"` square corners to match Card's `rounded-lg`, avoiding a double-corner effect where the image sticks out past the card boundary.
+
+**Badge overlay positioning:**
+- Badge is rendered inside the image's `relative` wrapper with `absolute top-2 left-2 z-10`. The `z-10` ensures it sits above the Image component. `top-2 left-2` provides a 0.5rem inset that feels intentional without crowding the corner. Considered `top-3 left-3` for more breathing room, but `top-2` matches the density of typical e-commerce product tiles.
+
+**Prop API uncertainty:**
+- No major uncertainty. The curated prop pattern (no spread) felt right for a composition component — ProductCard shouldn't silently accept arbitrary div props and pass them to Card, since that creates an unclear contract. One call: `imageAlt` is separate from `name` and not defaulted. This is intentional per the spec — the image alt describes the visual, not the product name.
+
+**`priceCents` documentation:**
+- Documented as integer cents, matching the Payload schema (`Products.basePrice` stores integer cents). `$145.00` is passed as `14500`, `$65.00` as `6500`, etc. Consumers are responsible for passing cents, not dollars.
+
+**Blocklist and deps confirmation:**
+- Did not touch any blocklisted paths. Work stayed within `src/components/storefront/ProductCard.tsx` and `src/app/(frontend)/design-test/page.tsx`. No new npm dependencies.
+
+**Build verification:**
+- `npx tsc --noEmit` clean.
+- `npm run build` exit 0, `/design-test` statically generated.
