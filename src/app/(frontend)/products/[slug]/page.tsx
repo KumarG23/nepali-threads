@@ -13,6 +13,7 @@ import { AddToCartButton } from "./_add-to-cart";
 import { PdpGallery } from "./_pdp-gallery";
 
 import { formatPriceCents } from "@/lib/format";
+import { JsonLd } from "@/lib/seo/json-ld";
 
 async function getProductBySlug(slug: string): Promise<Product | undefined> {
   const payload = await getPayload({ config });
@@ -109,8 +110,72 @@ export default async function ProductPage({
     return img && typeof img === "object" && img.url;
   });
 
+  // --- JSON-LD structured data ---
+  const firstImageForSchema = (product.images ?? []).find((entry) => {
+    const img = entry?.image;
+    return img && typeof img === "object" && img.url;
+  })?.image;
+  const productImageUrl =
+    firstImageForSchema && typeof firstImageForSchema === "object"
+      ? firstImageForSchema.url
+      : null;
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.seoDescription ?? product.name,
+    ...(productImageUrl ? { image: productImageUrl } : {}),
+    brand: { "@type": "Brand", name: "Nepali Threads" },
+    offers: {
+      "@type": "Offer",
+      url: `https://nepali-threads.com/products/${product.slug}`,
+      priceCurrency: "USD",
+      price: (product.basePrice / 100).toFixed(2),
+      availability:
+        product.status === "archived"
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
+    },
+  };
+
+  const categoryName =
+    typeof product.category === "object" ? product.category?.name : null;
+  const categorySlug =
+    typeof product.category === "object" ? product.category?.slug : null;
+
+  const breadcrumbItems: Record<string, unknown>[] = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://nepali-threads.com/",
+    },
+  ];
+  if (categoryName && categorySlug) {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      position: 2,
+      name: categoryName,
+      item: `https://nepali-threads.com/categories/${categorySlug}`,
+    });
+  }
+  breadcrumbItems.push({
+    "@type": "ListItem",
+    position: breadcrumbItems.length + 1,
+    name: product.name,
+    item: `https://nepali-threads.com/products/${product.slug}`,
+  });
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems,
+  };
+
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
+      <JsonLd data={[productSchema, breadcrumbSchema]} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
         {/* Left: image gallery */}
         <div>

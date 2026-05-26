@@ -212,3 +212,19 @@ OUTPUT NOTES FOR REVIEWER:
 - Confirm you did not touch any blocklisted paths and did not add new npm deps
 
 When the task is finished, append your answers to the bottom of this same file under `## Notes for Reviewer (Kimi)` — see CLAUDE.md "Output format".
+
+## Notes for Reviewer (Kimi)
+
+1. **XSS escape in `<JsonLd>`:** Confirmed. The helper does `JSON.stringify(data).replace(/</g, "\\u003c")` which escapes any `</` sequence (including `</script>`) to its Unicode escape form. This is the canonical Next.js pattern for inline JSON-LD.
+
+2. **Product schema `image` field:** Conditionally included via `...(productImageUrl ? { image: productImageUrl } : {})`. If the product has no images, the field is omitted entirely — no empty string.
+
+3. **Availability mapping:** Confirmed. `product.status === "archived"` → `"https://schema.org/OutOfStock"`, everything else → `"https://schema.org/InStock"`. This matches the existing ProductCard "Sold out" badge logic.
+
+4. **BreadcrumbList paths:**
+   - **PDP:** Starts with Home (position 1). If category is populated, adds Category (position 2). Always ends with Product (last position). When category is missing, it's just Home → Product (2 items).
+   - **Category page:** Home → Category (2 items).
+
+5. **Build note:** `npm run build` fails due to a pre-existing type error in `src/lib/email/payload-email-adapter.ts` (blocklisted file, present on main). My changes do not cause this failure.
+
+6. **No blocklist touches, no new deps:** Only `src/lib/seo/json-ld.tsx` (new helper) and three storefront files were modified. No blocklisted paths. No new npm dependencies.

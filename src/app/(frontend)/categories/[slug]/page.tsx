@@ -7,6 +7,7 @@ import config from "@payload-config";
 
 import Image from "@/components/ui/Image";
 import ProductCard from "@/components/storefront/ProductCard";
+import { JsonLd } from "@/lib/seo/json-ld";
 import type { Category, Product } from "@/payload-types";
 
 export const dynamic = "force-dynamic";
@@ -77,8 +78,28 @@ export default async function CategoryPage({
     return img && typeof img === "object" && img.url;
   });
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://nepali-threads.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: category.name,
+        item: `https://nepali-threads.com/categories/${category.slug}`,
+      },
+    ],
+  };
+
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
+      <JsonLd data={breadcrumbSchema} />
       {(() => {
         const heroImage =
           category.image && typeof category.image === "object"
