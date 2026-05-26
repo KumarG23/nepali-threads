@@ -37,12 +37,19 @@ export default async function AccountPage() {
         <p>Member since {memberSince}.</p>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 space-y-2">
         <Link
           href="/account/orders"
           className="inline-flex items-center gap-1 font-sans text-body font-medium text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
         >
           View your orders →
+        </Link>
+        <br />
+        <Link
+          href="/account/addresses"
+          className="inline-flex items-center gap-1 font-sans text-body font-medium text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
+        >
+          Manage your addresses →
         </Link>
       </div>
 
