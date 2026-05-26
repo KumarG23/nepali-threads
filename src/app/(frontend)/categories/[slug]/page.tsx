@@ -41,9 +41,11 @@ export async function generateMetadata({
   return {
     title: category.name,
     description: category.description ?? undefined,
-    openGraph: {
-      images: heroImageUrl ? [{ url: heroImageUrl }] : undefined,
-    },
+    // See PDP comment — omit openGraph entirely when no image so the
+    // default opengraph-image.tsx fallback applies.
+    ...(heroImageUrl
+      ? { openGraph: { images: [{ url: heroImageUrl }] } }
+      : {}),
   };
 }
 

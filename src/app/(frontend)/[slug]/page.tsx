@@ -43,9 +43,11 @@ export async function generateMetadata({
 
   return {
     title: page.title,
-    openGraph: {
-      images: firstImageUrl ? [{ url: firstImageUrl }] : undefined,
-    },
+    // See PDP comment — omit openGraph entirely when no image so the
+    // default opengraph-image.tsx fallback applies.
+    ...(firstImageUrl
+      ? { openGraph: { images: [{ url: firstImageUrl }] } }
+      : {}),
   };
 }
 

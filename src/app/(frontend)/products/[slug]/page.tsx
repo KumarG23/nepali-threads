@@ -48,9 +48,14 @@ export async function generateMetadata({
   return {
     title: product.seoTitle ?? product.name,
     description: product.seoDescription ?? undefined,
-    openGraph: {
-      images: firstImageUrl ? [{ url: firstImageUrl }] : undefined,
-    },
+    // Only override openGraph when we actually have a product image.
+    // Omitting the field entirely lets Next's auto-applied
+    // opengraph-image.tsx fallback take over — passing
+    // `images: undefined` would count as explicitly cleared and
+    // break the fallback chain.
+    ...(firstImageUrl
+      ? { openGraph: { images: [{ url: firstImageUrl }] } }
+      : {}),
   };
 }
 
