@@ -14,6 +14,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -55,9 +56,10 @@ export function SignUpForm() {
         return;
       }
 
+      setSuccess(true);
+      setLoading(false);
       window.dispatchEvent(new Event("nt:auth"));
       router.refresh();
-      router.push("/account");
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -91,6 +93,12 @@ export function SignUpForm() {
         autoComplete="new-password"
         hint="At least 8 characters."
       />
+      {success && (
+        <p className="font-sans text-small text-neutral-ink/70" role="status">
+          Account created. Check your email and click the verification link so
+          we can safely link any matching guest orders.
+        </p>
+      )}
       {error && (
         <p className="font-sans text-small text-brand-red-700" role="alert">
           {error}

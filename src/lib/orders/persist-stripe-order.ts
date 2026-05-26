@@ -181,7 +181,12 @@ export async function persistStripeOrder(
   if (checkoutEmail) {
     const customerResult = await payload.find({
       collection: "customers",
-      where: { email: { equals: checkoutEmail } },
+      where: {
+        and: [
+          { email: { equals: checkoutEmail } },
+          { emailVerifiedAt: { exists: true } },
+        ],
+      },
       limit: 1,
       depth: 0,
     });
