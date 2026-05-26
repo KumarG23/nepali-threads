@@ -105,27 +105,33 @@ export default async function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <Card key={order.id} variant="bordered" padding="md">
-              <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
-                <div>
-                  <p className="font-sans text-small font-medium text-neutral-ink">
-                    Order #{order.id}
-                  </p>
-                  <p className="font-sans text-small text-neutral-ink/60">
-                    {formatOrderDate(order.createdAt)}
-                  </p>
+            <Link
+              key={order.id}
+              href={`/account/orders/${order.id}`}
+              className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+            >
+              <Card variant="bordered" padding="md">
+                <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+                  <div>
+                    <p className="font-sans text-small font-medium text-neutral-ink">
+                      Order #{order.id}
+                    </p>
+                    <p className="font-sans text-small text-neutral-ink/60">
+                      {formatOrderDate(order.createdAt)}
+                    </p>
+                  </div>
+                  <Badge variant={orderStatusVariant(order.status)} size="sm">
+                    {order.status}
+                  </Badge>
                 </div>
-                <Badge variant={orderStatusVariant(order.status)} size="sm">
-                  {order.status}
-                </Badge>
-              </div>
-              <p className="font-sans text-small text-neutral-ink/70 mb-1">
-                {fulfillmentLine(order)}
-              </p>
-              <p className="font-sans text-body font-medium text-neutral-ink">
-                {lineItemSummary(order)}
-              </p>
-            </Card>
+                <p className="font-sans text-small text-neutral-ink/70 mb-1">
+                  {fulfillmentLine(order)}
+                </p>
+                <p className="font-sans text-body font-medium text-neutral-ink">
+                  {lineItemSummary(order)}
+                </p>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
