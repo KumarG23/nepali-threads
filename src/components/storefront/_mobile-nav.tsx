@@ -13,13 +13,22 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Tracks whether the drawer was previously open, so we restore focus
+  // to the trigger only on close-after-open (not on initial mount, where
+  // focus shouldn't be stolen from wherever it naturally landed).
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
     if (open) {
+      wasOpenRef.current = true;
       document.body.style.overflow = "hidden";
       closeButtonRef.current?.focus();
     } else {
       document.body.style.overflow = "";
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        triggerRef.current?.focus();
+      }
     }
     return () => {
       document.body.style.overflow = "";
