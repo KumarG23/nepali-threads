@@ -37,9 +37,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
+
+  const firstImage = (product.images ?? []).find((entry) => {
+    const img = entry?.image;
+    return img && typeof img === "object" && img.url;
+  })?.image;
+  const firstImageUrl =
+    firstImage && typeof firstImage === "object" ? firstImage.url : null;
+
   return {
     title: product.seoTitle ?? product.name,
     description: product.seoDescription ?? undefined,
+    openGraph: {
+      images: firstImageUrl ? [{ url: firstImageUrl }] : undefined,
+    },
   };
 }
 

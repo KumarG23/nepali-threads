@@ -31,9 +31,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const category = await getCategoryBySlug(slug);
   if (!category) return { title: "Category not found" };
+
+  const heroImage =
+    category.image && typeof category.image === "object"
+      ? category.image
+      : null;
+  const heroImageUrl = heroImage?.url ?? null;
+
   return {
     title: category.name,
     description: category.description ?? undefined,
+    openGraph: {
+      images: heroImageUrl ? [{ url: heroImageUrl }] : undefined,
+    },
   };
 }
 

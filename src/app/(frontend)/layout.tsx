@@ -17,8 +17,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Nepali Threads",
-  description: "Handmade clothing from Nepal.",
+  metadataBase: new URL("https://nepali-threads.com"),
+  title: {
+    template: "%s — Nepali Threads",
+    default: "Nepali Threads — Handmade clothing from Nepal",
+  },
+  description:
+    "Handmade clothing from Nepal. A small studio releasing one collection at a time.",
+  openGraph: {
+    siteName: "Nepali Threads",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   other: {
     "format-detection": "telephone=no",
   },

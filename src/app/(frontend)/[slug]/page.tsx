@@ -26,7 +26,27 @@ export async function generateMetadata({
     return { title: "Page not found" };
   }
 
-  return { title: page.title };
+  const firstImageBlock = (page.blocks ?? []).find(
+    (block): block is Extract<Page["blocks"], Array<unknown>>[number] &
+      Record<string, unknown> =>
+      block.blockType === "image" &&
+      typeof (block as Record<string, unknown>).image === "object"
+  );
+  const firstImageUrl =
+    firstImageBlock &&
+    typeof firstImageBlock.image === "object" &&
+    firstImageBlock.image !== null &&
+    "url" in firstImageBlock.image &&
+    typeof firstImageBlock.image.url === "string"
+      ? firstImageBlock.image.url
+      : null;
+
+  return {
+    title: page.title,
+    openGraph: {
+      images: firstImageUrl ? [{ url: firstImageUrl }] : undefined,
+    },
+  };
 }
 
 export default async function PagePage({

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { getPayload } from "payload";
 
 import config from "@payload-config";
@@ -7,12 +6,6 @@ import Link from "next/link";
 
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
-
-export const metadata: Metadata = {
-  title: "Nepali Threads",
-  description:
-    "Handmade clothing from Nepal. A small studio releasing one collection at a time.",
-};
 
 // Fetches the homepage hero global at request time so admin edits in the
 // Payload UI propagate immediately, instead of being baked in at build time.
