@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { AccountLink } from "./_account-link";
+
 const NAV_LINKS = [
   { label: "Shop", href: "/shop" },
   { label: "New", href: "/shop?filter=new" },
@@ -122,6 +124,9 @@ export function MobileNav() {
                 {link.label}
               </Link>
             ))}
+            <AccountLink
+              onClick={() => setOpen(false)}
+            />
             <Link
               href="/cart"
               onClick={() => setOpen(false)}
