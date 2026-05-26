@@ -59,6 +59,7 @@ export default async function HomePage() {
     },
     limit: 4,
     sort: "-createdAt",
+    depth: 1,
   });
   const featuredProducts = featuredResult.docs as Product[];
 
@@ -104,11 +105,6 @@ export default async function HomePage() {
                     priceCents={product.basePrice}
                     imageSrc={firstImage?.url ?? ""}
                     imageAlt={firstImage?.alt ?? product.name}
-                    badge={
-                      product.status === "archived"
-                        ? { label: "Sold out", variant: "muted" }
-                        : undefined
-                    }
                   />
                 </Link>
               );
