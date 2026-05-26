@@ -15,7 +15,19 @@ const nextConfig: NextConfig = {
     // from these hosts — Payload's media endpoint proxies/redirects from
     // the same-origin route.
     remotePatterns: [
+      // Custom production domain (apex + www). Once
+      // PAYLOAD_PUBLIC_SERVER_URL flips to https://nepali-threads.com, all
+      // serialized Media URLs reference these hosts.
+      { protocol: "https", hostname: "nepali-threads.com" },
+      { protocol: "https", hostname: "www.nepali-threads.com" },
+      // Vercel-managed hosts (production .vercel.app, preview hashed
+      // subdomains). Kept so the old URL keeps working during cutover
+      // and preview deploys still load images.
       { protocol: "https", hostname: "**.vercel.app" },
+      // R2 entries kept in case we ever serve images directly from R2
+      // (e.g. via a future custom CDN domain), but currently nothing
+      // actually loads from these hosts — Payload's media endpoint
+      // proxies/redirects from the same-origin route.
       { protocol: "https", hostname: "**.r2.cloudflarestorage.com" },
       { protocol: "https", hostname: "**.r2.dev" },
     ],
