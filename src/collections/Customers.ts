@@ -13,11 +13,27 @@ export const Customers: CollectionConfig = {
     defaultColumns: ["email", "name", "stripeCustomerId", "createdAt"],
   },
   access: {
-    // TODO(phase 2): customer self-service read/update of own record via
-    // an explicit /me endpoint or beforeRead hook. For now: admin only.
-    read: ({ req }) => req.user?.collection === "users",
-    create: ({ req }) => req.user?.collection === "users",
-    update: ({ req }) => req.user?.collection === "users",
+    // Anyone can create a customer (signup is open). Rate limiting /
+    // honeypot / captcha would live on the storefront sign-up form.
+    create: () => true,
+    // Admins read all. Logged-in customers read only their own record
+    // (Payload narrows the result set via the returned where filter).
+    read: ({ req }) => {
+      if (req.user?.collection === "users") return true;
+      if (req.user?.collection === "customers") {
+        return { id: { equals: req.user.id } };
+      }
+      return false;
+    },
+    update: ({ req }) => {
+      if (req.user?.collection === "users") return true;
+      if (req.user?.collection === "customers") {
+        return { id: { equals: req.user.id } };
+      }
+      return false;
+    },
+    // Delete stays admin-only — customers shouldn't self-serve account
+    // deletion via API without confirmation flows we haven't built.
     delete: ({ req }) => req.user?.collection === "users",
   },
   fields: [
@@ -29,6 +45,11 @@ export const Customers: CollectionConfig = {
       name: "stripeCustomerId",
       type: "text",
       index: true,
+      // Customer can READ their own Stripe id (useful for support
+      // lookups) but cannot write it — set by server-side flows only.
+      access: {
+        update: ({ req }) => req.user?.collection === "users",
+      },
       admin: {
         readOnly: true,
         description:

@@ -45,10 +45,22 @@ export const Orders: CollectionConfig = {
       "All purchases. Created automatically by the Stripe webhook — don't add orders by hand.",
   },
   access: {
-    // TODO(phase 2): customers should read their own orders via a
-    // scoped query (filter by customer === req.user.id) on the
-    // storefront. For now: admin only.
-    read: ({ req }) => req.user?.collection === "users",
+    // Admins read all orders. Logged-in customers read only orders
+    // explicitly linked to them via the `customer` relationship.
+    // Guest orders (customer === null) are NOT visible to customers
+    // even when guestEmail matches — by design, account history
+    // requires a linked Customer doc. Backfilling old guest orders
+    // by email on signup is a separate task.
+    read: ({ req }) => {
+      if (req.user?.collection === "users") return true;
+      if (req.user?.collection === "customers") {
+        return { customer: { equals: req.user.id } };
+      }
+      return false;
+    },
+    // Orders are created server-side via the Stripe checkout flow
+    // (persistStripeOrder) and the webhook. Customers never POST orders
+    // directly via API.
     create: ({ req }) => req.user?.collection === "users",
     update: ({ req }) => req.user?.collection === "users",
     delete: () => false, // never delete an order; refund / cancel instead

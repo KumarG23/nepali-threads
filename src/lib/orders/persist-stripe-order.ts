@@ -130,13 +130,38 @@ export async function persistStripeOrder(
   );
   const totalCents = session.amount_total ?? subtotalCents;
 
+  // If a Customer record exists matching the Stripe-collected email,
+  // link the Order to that Customer so it shows up in /account/orders
+  // when they sign in. Guest checkouts (no matching Customer) get
+  // customer: undefined and the email is preserved in guestEmail.
+  const checkoutEmail = session.customer_details?.email ?? undefined;
+  let linkedCustomerId: number | undefined;
+  if (checkoutEmail) {
+    const customerResult = await payload.find({
+      collection: "customers",
+      where: { email: { equals: checkoutEmail } },
+      limit: 1,
+      depth: 0,
+    });
+    if (customerResult.docs.length > 0) {
+      // Payload's generated types declare id as `number | string` to
+      // cover both Postgres-int and Mongo-objectid backends. We're on
+      // Postgres, so it's always a number — narrow defensively.
+      const id = customerResult.docs[0].id;
+      if (typeof id === "number") {
+        linkedCustomerId = id;
+      }
+    }
+  }
+
   try {
     const order = await payload.create({
       collection: "orders",
       data: {
         status: "paid",
         fulfillmentStatus: "unfulfilled",
-        guestEmail: session.customer_details?.email ?? undefined,
+        customer: linkedCustomerId,
+        guestEmail: checkoutEmail,
         lineItems: snapshot.map((item) => ({
           product: item.productId,
           nameSnapshot: item.name,
