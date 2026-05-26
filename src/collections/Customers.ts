@@ -1,11 +1,42 @@
 // LOCAL-LLM: DO NOT EDIT
 import type { CollectionConfig } from "payload";
 
-// auth: true automatically adds email + hashed password and emits
+import { renderPasswordResetHtml } from "../lib/email/render-password-reset";
+
+// auth automatically adds email + hashed password and emits
 // createdAt / updatedAt timestamps. Don't add those manually.
+//
+// The forgotPassword block customizes the reset email so the link
+// points at our storefront /reset-password page (not the admin UI)
+// and the subject + body match the brand. The generated `token`
+// is whatever Payload emits — we round-trip it through our page
+// straight back to POST /api/customers/reset-password.
 export const Customers: CollectionConfig = {
   slug: "customers",
-  auth: true,
+  auth: {
+    forgotPassword: {
+      generateEmailSubject: () =>
+        "Reset your Nepali Threads password",
+      generateEmailHTML: (args) => {
+        const token =
+          args && typeof args === "object" && "token" in args
+            ? String((args as { token?: unknown }).token ?? "")
+            : "";
+        const user =
+          args && typeof args === "object" && "user" in args
+            ? ((args as { user?: { name?: string | null } }).user ?? null)
+            : null;
+        const base =
+          process.env.PAYLOAD_PUBLIC_SERVER_URL ??
+          "https://nepali-threads.com";
+        const resetUrl = `${base}/reset-password?token=${encodeURIComponent(token)}`;
+        return renderPasswordResetHtml({
+          resetUrl,
+          customerName: user?.name ?? null,
+        });
+      },
+    },
+  },
   admin: {
     useAsTitle: "email",
     // Customers are managed primarily through storefront flows. Admins

@@ -7,28 +7,62 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-export function SignInForm() {
+interface Props {
+  token: string;
+}
+
+export function ResetPasswordForm({ token }: Props) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!token) {
+    return (
+      <div className="space-y-4">
+        <p className="font-sans text-body text-brand-red-700" role="alert">
+          This reset link is missing or invalid. Request a fresh one.
+        </p>
+        <p>
+          <Link
+            href="/forgot-password"
+            className="text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded font-sans"
+          >
+            ← Request a new link
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+
+    if (password.length < 8) {
+      setError("Password needs at least 8 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords don't match.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await fetch("/api/customers/login", {
+      const response = await fetch("/api/customers/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ token, password }),
       });
 
       if (!response.ok) {
-        setError("Email or password didn't match.");
+        setError(
+          "Couldn't reset your password. The link may have expired — request a fresh one."
+        );
         setLoading(false);
         return;
       }
@@ -45,44 +79,36 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Input
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        autoComplete="email"
-      />
-      <Input
-        label="Password"
+        label="New password"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        autoComplete="current-password"
+        autoComplete="new-password"
+        hint="At least 8 characters."
       />
-      <div className="-mt-3 text-right">
-        <Link
-          href="/forgot-password"
-          className="font-sans text-small text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
-        >
-          Forgot your password?
-        </Link>
-      </div>
+      <Input
+        label="Confirm new password"
+        type="password"
+        value={confirm}
+        onChange={(e) => setConfirm(e.target.value)}
+        required
+        autoComplete="new-password"
+      />
       {error && (
         <p className="font-sans text-small text-brand-red-700" role="alert">
           {error}
         </p>
       )}
       <Button type="submit" loading={loading} className="w-full">
-        Sign in
+        Set new password
       </Button>
       <p className="text-center font-sans text-small text-neutral-ink/70">
-        New here?{" "}
         <Link
-          href="/signup"
+          href="/signin"
           className="text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
         >
-          Create an account →
+          ← Back to sign in
         </Link>
       </p>
     </form>

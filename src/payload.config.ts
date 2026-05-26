@@ -26,6 +26,7 @@ import { ProductVariants } from "./collections/ProductVariants";
 import { Products } from "./collections/Products";
 import { Users } from "./collections/Users";
 import { HomepageHero } from "./globals/HomepageHero";
+import { resendPayloadAdapter } from "./lib/email/payload-email-adapter";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -52,6 +53,13 @@ export default buildConfig({
   ],
   globals: [HomepageHero],
   editor: lexicalEditor(),
+  // Wired to Resend via a custom adapter
+  // (src/lib/email/payload-email-adapter.ts). Used by Payload-emitted
+  // emails like forgot-password. Customer-facing transactional emails
+  // (order confirmation, shipping notification, etc.) still call
+  // Resend directly from their own modules — both paths share the
+  // same Resend account + RESEND_FROM_EMAIL.
+  email: resendPayloadAdapter,
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
