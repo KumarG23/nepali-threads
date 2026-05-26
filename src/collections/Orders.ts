@@ -1,6 +1,8 @@
 // LOCAL-LLM: DO NOT EDIT
 import type { CollectionConfig, Field } from "payload";
 
+import { sendShippingNotification } from "@/lib/email/send-shipping-notification";
+
 // Money fields are stored as INTEGER CENTS. MoneyField / MoneyCell handle
 // the dollar ↔ cents conversion in the admin UI only — API responses and
 // webhook writes use cents directly.
@@ -50,6 +52,71 @@ export const Orders: CollectionConfig = {
     create: ({ req }) => req.user?.collection === "users",
     update: ({ req }) => req.user?.collection === "users",
     delete: () => false, // never delete an order; refund / cancel instead
+  },
+  hooks: {
+    afterChange: [
+      // Send the shipping notification email when an admin marks an order
+      // as shipped + adds tracking info. Idempotent via the previous-state
+      // comparison — only fires on the unshipped → shipped transition.
+      // Subsequent saves (e.g. editing tracking number on an already-
+      // shipped order) skip because previousDoc.fulfillmentStatus is
+      // already "shipped". Future Order emails (delivered, refunded)
+      // layer on this same hook with additional transition checks.
+      async ({ doc, previousDoc, req }) => {
+        const wasShipped = previousDoc?.fulfillmentStatus === "shipped";
+        const isShipped = doc.fulfillmentStatus === "shipped";
+        if (wasShipped || !isShipped) return;
+
+        const trackingNumber = String(doc.trackingNumber ?? "").trim();
+        const customerEmail = doc.guestEmail;
+        if (!trackingNumber || !customerEmail) {
+          req.payload.logger.warn(
+            {
+              orderId: doc.id,
+              hasTracking: !!trackingNumber,
+              hasEmail: !!customerEmail,
+            },
+            "[shipping-email] Skipped — missing tracking number or customer email"
+          );
+          return;
+        }
+
+        const shippingAddress = doc.shippingAddress;
+        if (!shippingAddress?.line1) {
+          req.payload.logger.warn(
+            { orderId: doc.id },
+            "[shipping-email] Skipped — missing shipping address"
+          );
+          return;
+        }
+
+        try {
+          await sendShippingNotification({
+            orderId: doc.id,
+            customerEmail,
+            customerName: shippingAddress.recipientName || undefined,
+            trackingNumber,
+            carrier: doc.carrier || undefined,
+            shippingAddress: {
+              recipientName: shippingAddress.recipientName,
+              line1: shippingAddress.line1,
+              line2: shippingAddress.line2 || undefined,
+              city: shippingAddress.city,
+              region: shippingAddress.region,
+              postalCode: shippingAddress.postalCode,
+              country: shippingAddress.country,
+            },
+          });
+        } catch (err) {
+          // sendShippingNotification shouldn't throw, but if it does,
+          // never let the admin's Save fail because of it.
+          req.payload.logger.error(
+            { orderId: doc.id, err },
+            "[shipping-email] Unexpected throw from sendShippingNotification"
+          );
+        }
+      },
+    ],
   },
   fields: [
     {
