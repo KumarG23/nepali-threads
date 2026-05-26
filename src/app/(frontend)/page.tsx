@@ -7,6 +7,8 @@ import Link from "next/link";
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
 
+import type { Product } from "@/payload-types";
+
 // Fetches the homepage hero global at request time so admin edits in the
 // Payload UI propagate immediately, instead of being baked in at build time.
 // Matches the dynamic-rendering choice of /shop and /categories/[slug] —
@@ -24,11 +26,9 @@ const FALLBACK_BODY =
 const FALLBACK_CTA_LABEL = "Shop the collection";
 const FALLBACK_CTA_HREF = "/shop";
 
-const PLACEHOLDER_IMAGE =
-  "/migrated-product-images/Facetune_11-06-2024-18-51-27.jpeg";
-
 export default async function HomePage() {
   const payload = await getPayload({ config });
+
   const hero = await payload.findGlobal({ slug: "homepageHero" });
 
   const heroImageObj =
@@ -49,6 +49,25 @@ export default async function HomePage() {
     },
   };
 
+  const featuredResult = await payload.find({
+    collection: "products",
+    where: {
+      and: [
+        { status: { equals: "published" } },
+        { featured: { equals: true } },
+      ],
+    },
+    limit: 4,
+    sort: "-createdAt",
+    depth: 1,
+  });
+  const featuredProducts = featuredResult.docs as Product[];
+
+  const renderableProducts = featuredProducts.filter((product) => {
+    const img = product.images?.[0]?.image;
+    return img && typeof img === "object" && img.url;
+  });
+
   return (
     <>
       <Hero {...heroProps} />
@@ -61,59 +80,41 @@ export default async function HomePage() {
           A few pieces from the current collection. Each one is made by hand
           and there&apos;s only ever a small number.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          <Link
-            href="/products/test-romper"
-            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
-          >
-            <ProductCard
-              name="Wool Cardigan"
-              priceCents={14500}
-              imageSrc={PLACEHOLDER_IMAGE}
-              imageAlt="Handwoven wool cardigan in deep red"
-            />
-          </Link>
-          <Link
-            href="/products/test-romper"
-            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
-          >
-            <ProductCard
-              name="Silk Scarf"
-              priceCents={6500}
-              imageSrc={PLACEHOLDER_IMAGE}
-              imageAlt="Lightweight silk scarf with gold trim"
-              badge={{ label: "New", variant: "accent" }}
-            />
-          </Link>
-          <Link
-            href="/products/test-romper"
-            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
-          >
-            <ProductCard
-              name="Handwoven Sweater"
-              priceCents={22000}
-              imageSrc={PLACEHOLDER_IMAGE}
-              imageAlt="Thick handwoven sweater in natural cream"
-              badge={{ label: "Sold out", variant: "muted" }}
-            />
-          </Link>
-          <Link
-            href="/products/test-romper"
-            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
-          >
-            <ProductCard
-              name="Cotton Tunic"
-              priceCents={9500}
-              imageSrc={PLACEHOLDER_IMAGE}
-              imageAlt="Breathable cotton tunic for warm weather"
-              badge={{ label: "Sale", variant: "primary" }}
-            />
-          </Link>
-        </div>
+
+        {renderableProducts.length === 0 ? (
+          <p className="font-sans text-body text-neutral-ink/60">
+            Featured pieces are coming soon.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {renderableProducts.map((product) => {
+              const firstImage =
+                product.images?.[0]?.image &&
+                typeof product.images[0].image === "object"
+                  ? product.images[0].image
+                  : null;
+
+              return (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.slug}`}
+                  className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+                >
+                  <ProductCard
+                    name={product.name}
+                    priceCents={product.basePrice}
+                    imageSrc={firstImage?.url ?? ""}
+                    imageAlt={firstImage?.alt ?? product.name}
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="bg-neutral-ink/5 py-16 lg:py-24">
-        <div className="mx-auto max-w-3xl px-6 sm:px-8 lg:px-12 text-center">
+        <div className="mx-auto max-w-3xl px-6 text-center sm:px-8 lg:px-12">
           <p className="font-sans text-small font-medium uppercase tracking-wide text-brand-gold-700 mb-3">
             Why we make this
           </p>
