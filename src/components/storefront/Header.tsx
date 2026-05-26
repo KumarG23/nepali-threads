@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 
 import { CartCount } from "./_cart-count";
+import { MobileNav } from "./_mobile-nav";
 
 function cx(...args: (string | false | undefined | null)[]): string {
   return args.filter(Boolean).join(" ");
@@ -28,15 +29,23 @@ export function Header({
       )}
     >
       <div className="mx-auto max-w-7xl px-6 py-4 sm:px-8 lg:px-12 lg:py-5">
-        <div className="flex flex-col items-center gap-3 md:flex-row md:items-center md:justify-between">
-          <Link
-            href="/"
-            className="font-serif text-h2 text-neutral-ink hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
-          >
-            nepali threads
-          </Link>
+        <div className="flex items-center justify-between">
+          {/* Mobile: hamburger left, brand center-ish */}
+          <div className="flex items-center gap-3">
+            <MobileNav />
+            <Link
+              href="/"
+              className="font-serif text-h2 text-neutral-ink hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
+            >
+              nepali threads
+            </Link>
+          </div>
 
-          <nav aria-label="Primary" className="flex flex-wrap justify-center gap-4 md:gap-6">
+          {/* Desktop nav */}
+          <nav
+            aria-label="Primary"
+            className="hidden flex-wrap items-center gap-4 md:flex md:gap-6"
+          >
             <Link href="/shop" className={navLinkClasses}>
               Shop
             </Link>
@@ -48,9 +57,10 @@ export function Header({
             </Link>
           </nav>
 
+          {/* Cart — desktop only; mobile cart is inside drawer */}
           <Link
             href="/cart"
-            className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 md:flex"
           >
             <CartCount />
           </Link>

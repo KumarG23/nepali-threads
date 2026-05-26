@@ -19,6 +19,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nepali Threads",
   description: "Handmade clothing from Nepal.",
+  other: {
+    "format-detection": "telephone=no",
+  },
 };
 
 export default function RootLayout({

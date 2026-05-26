@@ -38,7 +38,7 @@ export function Input({
   const describedBy = errorId ?? hintId;
 
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-small min-h-[32px]",
+    sm: "px-3 py-1.5 text-body min-h-[32px]",
     md: "px-4 py-2 text-body min-h-[40px]",
     lg: "px-6 py-3 text-body min-h-[48px]",
   }[inputSize];

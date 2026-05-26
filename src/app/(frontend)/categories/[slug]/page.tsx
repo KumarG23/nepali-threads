@@ -119,7 +119,7 @@ export default async function CategoryPage({
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
-                  className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"
+                  className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
                 >
                   <ProductCard
                     name={product.name}

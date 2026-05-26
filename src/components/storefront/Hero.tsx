@@ -50,7 +50,7 @@ export function Hero({
               {eyebrow}
             </p>
           )}
-          <h1 className="font-serif text-display text-neutral-cream">
+          <h1 className="font-serif text-h1 sm:text-display text-neutral-cream">
             {heading}
           </h1>
           {body && (
