@@ -16,7 +16,7 @@ import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 
 import { persistStripeOrder } from "@/lib/orders/persist-stripe-order";
-import { stripe } from "@/lib/stripe/client";
+import { getStripe } from "@/lib/stripe/client";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
+  const stripe = getStripe();
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);

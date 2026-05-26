@@ -36,77 +36,11 @@ export const Customers: CollectionConfig = {
     // deletion via API without confirmation flows we haven't built.
     delete: ({ req }) => req.user?.collection === "users",
   },
-  hooks: {
-    afterChange: [
-      // Guest-order claim: when a new Customer is created (signup),
-      // backfill any past guest orders matching their email by setting
-      // Order.customer = new Customer.id. After this, /account/orders
-      // shows their full history including orders placed before signup.
-      //
-      // Email match is the same trust boundary guest-checkout already
-      // uses implicitly (Stripe collects the email, confirmation lands
-      // in that inbox). Fires ONLY on create — profile updates don't
-      // re-trigger, so a bad actor can't change their email to absorb
-      // someone else's orders.
-      async ({ doc, operation, req }) => {
-        if (operation !== "create") return;
-        const email = doc.email;
-        if (!email) return;
-
-        const newCustomerId = doc.id;
-        if (typeof newCustomerId !== "number") {
-          req.payload.logger.warn(
-            { customerId: doc.id },
-            "[guest-order-claim] Skipping: customer id is not a number (unexpected on Postgres)"
-          );
-          return;
-        }
-
-        // Find unlinked guest orders with the same email.
-        const result = await req.payload.find({
-          collection: "orders",
-          where: {
-            and: [
-              { customer: { equals: null } },
-              { guestEmail: { equals: email } },
-            ],
-          },
-          limit: 100,
-          depth: 0,
-        });
-
-        if (result.docs.length === 0) return;
-
-        // Sequential updates — order count per customer is small and
-        // Payload's update is fast enough that parallelism isn't worth
-        // the added complexity. overrideAccess: true is required
-        // because Orders.update is admin-only — this hook is system
-        // code, not a customer-initiated update.
-        let claimed = 0;
-        for (const order of result.docs) {
-          try {
-            await req.payload.update({
-              collection: "orders",
-              id: order.id,
-              data: { customer: newCustomerId },
-              overrideAccess: true,
-            });
-            claimed += 1;
-          } catch (err) {
-            req.payload.logger.error(
-              { orderId: order.id, customerId: newCustomerId, err },
-              "[guest-order-claim] Failed to claim guest order"
-            );
-          }
-        }
-
-        req.payload.logger.info(
-          { customerId: newCustomerId, email, claimed },
-          "[guest-order-claim] Backfilled guest orders on signup"
-        );
-      },
-    ],
-  },
+  // Guest-order auto-claim intentionally disabled for launch safety.
+  // Matching historical guest orders to a newly-created account by email alone
+  // lets someone squat another person's email and absorb their order history
+  // before email ownership is proven. Add this back only behind Payload email
+  // verification or a signed claim-link flow from the order-confirmation email.
   fields: [
     {
       name: "name",
