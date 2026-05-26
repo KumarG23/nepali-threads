@@ -3,6 +3,8 @@ import { getPayload } from "payload";
 
 import config from "@payload-config";
 
+import Link from "next/link";
+
 import Hero from "@/components/storefront/Hero";
 import ProductCard from "@/components/storefront/ProductCard";
 
@@ -67,33 +69,53 @@ export default async function HomePage() {
           and there&apos;s only ever a small number.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          <ProductCard
-            name="Wool Cardigan"
-            priceCents={14500}
-            imageSrc={PLACEHOLDER_IMAGE}
-            imageAlt="Handwoven wool cardigan in deep red"
-          />
-          <ProductCard
-            name="Silk Scarf"
-            priceCents={6500}
-            imageSrc={PLACEHOLDER_IMAGE}
-            imageAlt="Lightweight silk scarf with gold trim"
-            badge={{ label: "New", variant: "accent" }}
-          />
-          <ProductCard
-            name="Handwoven Sweater"
-            priceCents={22000}
-            imageSrc={PLACEHOLDER_IMAGE}
-            imageAlt="Thick handwoven sweater in natural cream"
-            badge={{ label: "Sold out", variant: "muted" }}
-          />
-          <ProductCard
-            name="Cotton Tunic"
-            priceCents={9500}
-            imageSrc={PLACEHOLDER_IMAGE}
-            imageAlt="Breathable cotton tunic for warm weather"
-            badge={{ label: "Sale", variant: "primary" }}
-          />
+          <Link
+            href="/products/test-romper"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+          >
+            <ProductCard
+              name="Wool Cardigan"
+              priceCents={14500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Handwoven wool cardigan in deep red"
+            />
+          </Link>
+          <Link
+            href="/products/test-romper"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+          >
+            <ProductCard
+              name="Silk Scarf"
+              priceCents={6500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Lightweight silk scarf with gold trim"
+              badge={{ label: "New", variant: "accent" }}
+            />
+          </Link>
+          <Link
+            href="/products/test-romper"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+          >
+            <ProductCard
+              name="Handwoven Sweater"
+              priceCents={22000}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Thick handwoven sweater in natural cream"
+              badge={{ label: "Sold out", variant: "muted" }}
+            />
+          </Link>
+          <Link
+            href="/products/test-romper"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 active:opacity-90"
+          >
+            <ProductCard
+              name="Cotton Tunic"
+              priceCents={9500}
+              imageSrc={PLACEHOLDER_IMAGE}
+              imageAlt="Breathable cotton tunic for warm weather"
+              badge={{ label: "Sale", variant: "primary" }}
+            />
+          </Link>
         </div>
       </section>
 

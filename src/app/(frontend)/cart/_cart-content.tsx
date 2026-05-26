@@ -122,7 +122,7 @@ export function CartPageContent() {
                     </p>
                   </div>
 
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
+                  <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     {/* Quantity controls */}
                     <div className="inline-flex items-center overflow-hidden rounded border border-neutral-ink/15">
                       <button
@@ -131,7 +131,7 @@ export function CartPageContent() {
                           updateQuantity(item.productId, item.quantity - 1)
                         }
                         aria-label={`Decrease quantity of ${item.name}`}
-                        className="px-3 py-1.5 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
+                        className="min-h-[44px] px-3 py-2 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
                       >
                         −
                       </button>
@@ -147,7 +147,7 @@ export function CartPageContent() {
                           updateQuantity(item.productId, item.quantity + 1)
                         }
                         aria-label={`Increase quantity of ${item.name}`}
-                        className="px-3 py-1.5 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
+                        className="min-h-[44px] px-3 py-2 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
                       >
                         +
                       </button>

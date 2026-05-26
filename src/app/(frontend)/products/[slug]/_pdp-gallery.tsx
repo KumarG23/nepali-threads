@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import Image from "@/components/ui/Image";
 
@@ -16,6 +16,7 @@ type PdpGalleryProps = {
 
 export function PdpGallery({ images, productName }: PdpGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
 
   if (images.length === 0) {
     return (
@@ -39,17 +40,42 @@ export function PdpGallery({ images, productName }: PdpGalleryProps) {
 
   const activeImage = images[activeIndex];
 
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+  }
+
+  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    if (!pointerStart.current) return;
+    const dx = event.clientX - pointerStart.current.x;
+    const dy = event.clientY - pointerStart.current.y;
+    pointerStart.current = null;
+
+    if (Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy)) return;
+
+    if (dx < 0) {
+      setActiveIndex((i) => (i + 1) % images.length);
+    } else {
+      setActiveIndex((i) => (i - 1 + images.length) % images.length);
+    }
+  }
+
   return (
     <div>
-      {/* Main image */}
-      <Image
-        key={activeImage.url}
-        src={activeImage.url}
-        alt={activeImage.alt || productName}
-        aspectRatio="portrait"
-        rounded="lg"
-        priority={activeIndex === 0}
-      />
+      {/* Main image — swipe area */}
+      <div
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        className="touch-pan-y"
+      >
+        <Image
+          key={activeImage.url}
+          src={activeImage.url}
+          alt={activeImage.alt || productName}
+          aspectRatio="portrait"
+          rounded="lg"
+          priority={activeIndex === 0}
+        />
+      </div>
 
       {/* Thumbnail strip */}
       <ul
