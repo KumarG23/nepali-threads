@@ -58,9 +58,13 @@ export function Header({
             </Link>
           </nav>
 
-          {/* Account + Cart — desktop only; mobile equivalents are inside drawer */}
-          <div className="hidden items-center gap-4 md:flex md:gap-6">
-            <AccountLink />
+          {/* Account: desktop only (mobile equivalent lives in the drawer).
+              Cart: visible at every breakpoint so the count is always one
+              tap away. */}
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="hidden md:block">
+              <AccountLink />
+            </div>
             <Link
               href="/cart"
               className="inline-flex items-center gap-2 rounded font-sans text-body font-medium text-neutral-ink/80 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2"

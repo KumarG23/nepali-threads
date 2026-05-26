@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -100,12 +101,12 @@ export function SignUpForm() {
       </Button>
       <p className="text-center font-sans text-small text-neutral-ink/70">
         Already have an account?{" "}
-        <a
+        <Link
           href="/signin"
           className="text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
         >
           Sign in →
-        </a>
+        </Link>
       </p>
     </form>
   );

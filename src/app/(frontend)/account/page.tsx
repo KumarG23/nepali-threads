@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers as nextHeaders } from "next/headers";
 import { redirect } from "next/navigation";
 import { getPayload } from "payload";
@@ -37,12 +38,12 @@ export default async function AccountPage() {
       </div>
 
       <div className="mb-8">
-        <a
+        <Link
           href="/account/orders"
           className="inline-flex items-center gap-1 font-sans text-body font-medium text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
         >
           View your orders →
-        </a>
+        </Link>
       </div>
 
       <AccountContent />

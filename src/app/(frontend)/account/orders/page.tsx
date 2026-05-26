@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers as nextHeaders } from "next/headers";
 import { redirect } from "next/navigation";
 import { getPayload } from "payload";
@@ -93,12 +94,12 @@ export default async function OrdersPage() {
       {orders.length === 0 ? (
         <p className="font-sans text-body text-neutral-ink/70">
           You haven&apos;t placed an order yet. Head to the{" "}
-          <a
+          <Link
             href="/shop"
             className="text-brand-red-600 hover:text-brand-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
           >
             shop
-          </a>{" "}
+          </Link>{" "}
           to find something.
         </p>
       ) : (
