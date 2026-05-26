@@ -180,6 +180,15 @@ Append this section at the bottom of this file when complete:
 - Any build/typecheck limitations:
 ```
 
+## Notes for Reviewer (Kimi)
+
+- **Files changed:** `src/app/(frontend)/page.tsx` (only file modified); `tasks/TASK-040-homepage-featured-products.md` (notes appended)
+- **Query shape used:** `payload.find({ collection: "products", where: { and: [{ status: { equals: "published" } }, { featured: { equals: true } }] }, limit: 4, sort: "-createdAt" })`. Note: the schema field is `featured` (checkbox, label "Show on homepage"), not `showOnHomepage`.
+- **How image relationship narrowing is handled:** Same pattern as `/shop/page.tsx` — `const img = product.images?.[0]?.image; return img && typeof img === "object" && img.url;`. Products without a populated first image are filtered out before rendering. The `firstImage` helper narrows `number | Media` to `Media` via `typeof === "object"`.
+- **Empty-state behavior:** When `renderableProducts.length === 0`, renders `<p className="font-sans text-body text-neutral-ink/60">Featured pieces are coming soon.</p>` inside the section. No fake products.
+- **Verification run:** `npx tsc --noEmit` passes clean (no errors in page.tsx). `npm run build` passes clean — `/` renders as dynamic (ƒ) with correct bundle size.
+- **Any build/typecheck limitations:** None. Both typecheck and build pass cleanly.
+
 ## Commit
 
 Commit with:
