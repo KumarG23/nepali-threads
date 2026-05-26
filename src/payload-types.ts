@@ -195,6 +195,11 @@ export interface Customer {
    */
   stripeCustomerId?: string | null;
   newsletterOptIn?: boolean | null;
+  /**
+   * Set automatically when the customer clicks the verification email.
+   */
+  emailVerifiedAt?: string | null;
+  emailVerificationToken?: string | null;
   addresses?:
     | {
         /**
@@ -709,6 +714,8 @@ export interface CustomersSelect<T extends boolean = true> {
   name?: T;
   stripeCustomerId?: T;
   newsletterOptIn?: T;
+  emailVerifiedAt?: T;
+  emailVerificationToken?: T;
   addresses?:
     | T
     | {

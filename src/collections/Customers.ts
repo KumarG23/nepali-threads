@@ -1,5 +1,9 @@
 // LOCAL-LLM: DO NOT EDIT
+import crypto from "crypto";
+
 import type { CollectionConfig } from "payload";
+
+import { sendCustomerVerification } from "@/lib/email/send-customer-verification";
 
 // auth: true automatically adds email + hashed password and emits
 // createdAt / updatedAt timestamps. Don't add those manually.
@@ -36,11 +40,35 @@ export const Customers: CollectionConfig = {
     // deletion via API without confirmation flows we haven't built.
     delete: ({ req }) => req.user?.collection === "users",
   },
-  // Guest-order auto-claim intentionally disabled for launch safety.
+  // Guest-order auto-claim intentionally waits for verified email ownership.
   // Matching historical guest orders to a newly-created account by email alone
-  // lets someone squat another person's email and absorb their order history
-  // before email ownership is proven. Add this back only behind Payload email
-  // verification or a signed claim-link flow from the order-confirmation email.
+  // lets someone squat another person's email and absorb their order history.
+  // The /verify-email page claims guest orders after the customer clicks the
+  // verification link sent to that inbox.
+  hooks: {
+    beforeChange: [
+      ({ data, operation }) => {
+        if (operation === "create" && data && !data.emailVerificationToken) {
+          data.emailVerificationToken = crypto.randomBytes(32).toString("hex");
+        }
+        return data;
+      },
+    ],
+    afterChange: [
+      async ({ doc, operation }) => {
+        if (operation !== "create") return;
+        const token = doc.emailVerificationToken;
+        if (typeof token !== "string" || !doc.email) return;
+
+        await sendCustomerVerification({
+          customerId: doc.id,
+          customerEmail: doc.email,
+          customerName: typeof doc.name === "string" ? doc.name : undefined,
+          token,
+        });
+      },
+    ],
+  },
   fields: [
     {
       name: "name",
@@ -65,6 +93,28 @@ export const Customers: CollectionConfig = {
       name: "newsletterOptIn",
       type: "checkbox",
       defaultValue: false,
+    },
+    {
+      name: "emailVerifiedAt",
+      type: "date",
+      admin: {
+        readOnly: true,
+        description: "Set automatically when the customer clicks the verification email.",
+      },
+      access: {
+        update: ({ req }) => req.user?.collection === "users",
+      },
+    },
+    {
+      name: "emailVerificationToken",
+      type: "text",
+      admin: {
+        hidden: true,
+      },
+      access: {
+        read: ({ req }) => req.user?.collection === "users",
+        update: ({ req }) => req.user?.collection === "users",
+      },
     },
     {
       name: "addresses",
