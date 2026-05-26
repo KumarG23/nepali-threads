@@ -36,6 +36,13 @@ type ProductSnapshot = {
   priceCents: number;
 };
 
+type CompactProductSnapshot = {
+  p: number;
+  n: string;
+  q: number;
+  c: number;
+};
+
 // Derive the Stripe PaymentIntent id from a session. The payment_intent
 // field is either a string id or an expanded object, depending on how the
 // session was retrieved. Handle both shapes defensively.
@@ -77,11 +84,46 @@ function mapShippingAddress(
   };
 }
 
+function isCompactSnapshot(value: unknown): value is CompactProductSnapshot {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.p === "number" &&
+    typeof v.n === "string" &&
+    typeof v.q === "number" &&
+    typeof v.c === "number"
+  );
+}
+
+function isLegacySnapshot(value: unknown): value is ProductSnapshot {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.productId === "number" &&
+    typeof v.name === "string" &&
+    typeof v.quantity === "number" &&
+    typeof v.priceCents === "number"
+  );
+}
+
 function parseSnapshot(session: Stripe.Checkout.Session): ProductSnapshot[] {
   try {
-    return JSON.parse(
-      session.metadata?.productSnapshot ?? "[]"
-    ) as ProductSnapshot[];
+    const parsed = JSON.parse(session.metadata?.productSnapshot ?? "[]") as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((item): ProductSnapshot[] => {
+      if (isCompactSnapshot(item)) {
+        return [
+          {
+            productId: item.p,
+            name: item.n,
+            quantity: item.q,
+            priceCents: item.c,
+          },
+        ];
+      }
+      if (isLegacySnapshot(item)) return [item];
+      return [];
+    });
   } catch {
     return [];
   }

@@ -5,7 +5,7 @@ import type Stripe from "stripe";
 
 import { formatPriceCents } from "@/lib/format";
 import { persistStripeOrder } from "@/lib/orders/persist-stripe-order";
-import { stripe } from "@/lib/stripe/client";
+import { getStripe } from "@/lib/stripe/client";
 
 import { ClearCart } from "./_clear-cart";
 
@@ -16,10 +16,14 @@ export const metadata: Metadata = {
 };
 
 type ProductSnapshot = {
-  productId: number;
-  name: string;
-  quantity: number;
-  priceCents: number;
+  productId?: number;
+  name?: string;
+  quantity?: number;
+  priceCents?: number;
+  p?: number;
+  n?: string;
+  q?: number;
+  c?: number;
 };
 
 export default async function SuccessPage({
@@ -32,6 +36,7 @@ export default async function SuccessPage({
 
   let session: Stripe.Checkout.Session;
   try {
+    const stripe = getStripe();
     session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ["line_items", "payment_intent"],
     });
@@ -75,7 +80,10 @@ export default async function SuccessPage({
       const snapshot = JSON.parse(
         session.metadata?.productSnapshot ?? "[]"
       ) as ProductSnapshot[];
-      return snapshot.reduce((sum, item) => sum + item.quantity, 0);
+      return snapshot.reduce(
+        (sum, item) => sum + (item.quantity ?? item.q ?? 0),
+        0
+      );
     } catch {
       return 0;
     }
