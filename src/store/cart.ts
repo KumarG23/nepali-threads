@@ -3,8 +3,10 @@ import { persist } from "zustand/middleware";
 
 export type CartItem = {
   productId: number;
+  variantId?: number;
   productSlug: string;
   name: string;
+  variantLabel?: string;
   priceCents: number;
   imageSrc: string;
   imageAlt: string;
@@ -14,10 +16,15 @@ export type CartItem = {
 type CartState = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeItem: (productId: number, variantId?: number) => void;
+  updateQuantity: (productId: number, variantId: number | undefined, quantity: number) => void;
   clear: () => void;
 };
+
+const sameLine = (
+  a: { productId: number; variantId?: number },
+  b: { productId: number; variantId?: number }
+) => a.productId === b.productId && (a.variantId ?? null) === (b.variantId ?? null);
 
 export const useCart = create<CartState>()(
   persist(
@@ -25,13 +32,11 @@ export const useCart = create<CartState>()(
       items: [],
       addItem: (item) =>
         set((state) => {
-          const existing = state.items.find(
-            (i) => i.productId === item.productId
-          );
+          const existing = state.items.find((i) => sameLine(i, item));
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId
+                sameLine(i, item)
                   ? { ...i, quantity: i.quantity + 1 }
                   : i
               ),
@@ -39,20 +44,24 @@ export const useCart = create<CartState>()(
           }
           return { items: [...state.items, { ...item, quantity: 1 }] };
         }),
-      removeItem: (productId) =>
+      removeItem: (productId, variantId) =>
         set((state) => ({
-          items: state.items.filter((i) => i.productId !== productId),
+          items: state.items.filter(
+            (i) => !sameLine(i, { productId, variantId })
+          ),
         })),
-      updateQuantity: (productId, quantity) =>
+      updateQuantity: (productId, variantId, quantity) =>
         set((state) => {
           if (quantity <= 0) {
             return {
-              items: state.items.filter((i) => i.productId !== productId),
+              items: state.items.filter(
+                (i) => !sameLine(i, { productId, variantId })
+              ),
             };
           }
           return {
             items: state.items.map((i) =>
-              i.productId === productId ? { ...i, quantity } : i
+              sameLine(i, { productId, variantId }) ? { ...i, quantity } : i
             ),
           };
         }),
@@ -60,7 +69,15 @@ export const useCart = create<CartState>()(
     }),
     {
       name: "nepali-threads-cart",
-      version: 1,
+      version: 2,
+      migrate: (_persistedState, fromVersion) => {
+        if (fromVersion < 2) {
+          // Drop legacy carts — items lacked variantId and can't be safely
+          // backfilled. Acceptable at pre-launch.
+          return { items: [] } as unknown as CartState;
+        }
+        return _persistedState as unknown as CartState;
+      },
     }
   )
 );

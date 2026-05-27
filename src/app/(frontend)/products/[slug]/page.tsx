@@ -7,10 +7,11 @@ import { RichText } from "@payloadcms/richtext-lexical/react";
 import config from "@payload-config";
 
 import ProductCard from "@/components/storefront/ProductCard";
-import type { Product } from "@/payload-types";
+import type { Product, ProductVariant } from "@/payload-types";
 
 import { AddToCartButton } from "./_add-to-cart";
 import { PdpGallery } from "./_pdp-gallery";
+import { PdpVariantSelector } from "./_pdp-variant-selector";
 
 import { formatPriceCents } from "@/lib/format";
 
@@ -48,11 +49,6 @@ export async function generateMetadata({
   return {
     title: product.seoTitle ?? product.name,
     description: product.seoDescription ?? undefined,
-    // Only override openGraph when we actually have a product image.
-    // Omitting the field entirely lets Next's auto-applied
-    // opengraph-image.tsx fallback take over — passing
-    // `images: undefined` would count as explicitly cleared and
-    // break the fallback chain.
     ...(firstImageUrl
       ? { openGraph: { images: [{ url: firstImageUrl }] } }
       : {}),
@@ -82,6 +78,15 @@ export default async function ProductPage({
 
   const payload = await getPayload({ config });
 
+  const variantResult = await payload.find({
+    collection: "product-variants",
+    where: { product: { equals: product.id } },
+    sort: "createdAt",
+    limit: 100,
+    depth: 1,
+  });
+  const variants = variantResult.docs as ProductVariant[];
+
   const categoryId =
     typeof product.category === "object" && product.category?.id
       ? product.category.id
@@ -109,51 +114,65 @@ export default async function ProductPage({
     return img && typeof img === "object" && img.url;
   });
 
+  const categoryLink =
+    typeof product.category === "object" &&
+    product.category?.name &&
+    product.category?.slug ? (
+      <Link
+        href={`/categories/${product.category.slug}`}
+        className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 hover:text-brand-red-700 transition-colors mb-2 inline-block"
+      >
+        {product.category.name}
+      </Link>
+    ) : null;
+
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-        {/* Left: image gallery */}
-        <div>
-          <PdpGallery
-            images={galleryImages}
-            productName={product.name}
+        {variants.length > 0 ? (
+          <PdpVariantSelector
+            product={product}
+            variants={variants}
+            productGalleryImages={galleryImages}
+            categoryLink={categoryLink}
           />
-        </div>
-
-        {/* Right: info, sticky on desktop */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          {typeof product.category === "object" &&
-            product.category?.name &&
-            product.category?.slug && (
-              <Link
-                href={`/categories/${product.category.slug}`}
-                className="font-sans text-small font-medium uppercase tracking-wide text-neutral-ink/60 hover:text-brand-red-700 transition-colors mb-2 inline-block"
-              >
-                {product.category.name}
-              </Link>
-            )}
-          <h1 className="font-serif text-display text-neutral-ink mb-4">
-            {product.name}
-          </h1>
-          <div className="flex items-center gap-3 mb-6">
-            <p className="font-serif text-h1 text-neutral-ink">
-              {formatPriceCents(product.basePrice)}
-            </p>
-          </div>
-          {product.description && (
-            <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
-              <RichText data={product.description} />
+        ) : (
+          <>
+            {/* Left: image gallery */}
+            <div>
+              <PdpGallery
+                images={galleryImages}
+                productName={product.name}
+              />
             </div>
-          )}
-          <AddToCartButton
-            productId={product.id}
-            productSlug={product.slug}
-            name={product.name}
-            priceCents={product.basePrice}
-            imageSrc={firstImage?.url ?? ""}
-            imageAlt={firstImage?.alt ?? product.name}
-          />
-        </div>
+
+            {/* Right: info, sticky on desktop */}
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              {categoryLink}
+              <h1 className="font-serif text-display text-neutral-ink mb-4">
+                {product.name}
+              </h1>
+              <div className="flex items-center gap-3 mb-6">
+                <p className="font-serif text-h1 text-neutral-ink">
+                  {formatPriceCents(product.basePrice)}
+                </p>
+              </div>
+              {product.description && (
+                <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
+                  <RichText data={product.description} />
+                </div>
+              )}
+              <AddToCartButton
+                productId={product.id}
+                productSlug={product.slug}
+                name={product.name}
+                priceCents={product.basePrice}
+                imageSrc={firstImage?.url ?? ""}
+                imageAlt={firstImage?.alt ?? product.name}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {renderableRelated.length > 0 && (

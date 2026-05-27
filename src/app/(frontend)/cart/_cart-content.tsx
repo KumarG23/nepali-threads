@@ -92,7 +92,10 @@ export function CartPageContent() {
         <div className="lg:col-span-2">
           <ul className="divide-y divide-neutral-ink/10">
             {items.map((item) => (
-              <li key={item.productId} className="flex gap-4 py-6">
+              <li
+                key={`${item.productId}-${item.variantId ?? "base"}`}
+                className="flex gap-4 py-6"
+              >
                 <Link
                   href={`/products/${item.productSlug}`}
                   className="block w-20 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 sm:w-24"
@@ -122,13 +125,23 @@ export function CartPageContent() {
                     </p>
                   </div>
 
+                  {item.variantLabel && (
+                    <p className="font-sans text-small text-neutral-ink/60">
+                      Color: {item.variantLabel}
+                    </p>
+                  )}
+
                   <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     {/* Quantity controls */}
                     <div className="inline-flex items-center overflow-hidden rounded border border-neutral-ink/15">
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.productId, item.quantity - 1)
+                          updateQuantity(
+                            item.productId,
+                            item.variantId,
+                            item.quantity - 1
+                          )
                         }
                         aria-label={`Decrease quantity of ${item.name}`}
                         className="min-h-[44px] px-3 py-2 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
@@ -144,7 +157,11 @@ export function CartPageContent() {
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.productId, item.quantity + 1)
+                          updateQuantity(
+                            item.productId,
+                            item.variantId,
+                            item.quantity + 1
+                          )
                         }
                         aria-label={`Increase quantity of ${item.name}`}
                         className="min-h-[44px] px-3 py-2 font-sans text-body text-neutral-ink hover:bg-neutral-ink/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-inset"
@@ -159,7 +176,9 @@ export function CartPageContent() {
                       </p>
                       <button
                         type="button"
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() =>
+                          removeItem(item.productId, item.variantId)
+                        }
                         aria-label={`Remove ${item.name} from cart`}
                         className="font-sans text-small text-neutral-ink/60 hover:text-brand-red-700 underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
                       >
