@@ -19,13 +19,16 @@ type AddToCartButtonProps = {
 export function AddToCartButton(props: AddToCartButtonProps) {
   const addItem = useCart((state) => state.addItem);
   const { unavailable, disabled, ...rest } = props;
+  // Belt-and-braces: an unavailable combination must also be unclickable,
+  // independent of whether the caller remembered to pass disabled=true.
+  const isInactive = disabled || unavailable;
 
   return (
     <Button
       variant="primary"
       size="lg"
       className="w-full sm:w-auto"
-      disabled={disabled}
+      disabled={isInactive}
       onClick={() => addItem(rest)}
     >
       {unavailable

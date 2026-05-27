@@ -200,27 +200,27 @@ export function PdpVariantSelector({
   const isSoldOut = resolvedVariant ? resolvedVariant.inventoryCount <= 0 : true;
   const isUnavailable = resolvedVariant === null;
 
+  function reconcileSizeForColor(color: string) {
+    if (!selectedSize) return;
+    const hasCombo = variants.some((v) => {
+      const vColor = (v.color ?? null) || null;
+      return vColor === color && v.size === selectedSize;
+    });
+    if (hasCombo) return;
+    const firstInStock = derived.sizes.find((s) =>
+      variants.some((v) => {
+        const vColor = (v.color ?? null) || null;
+        return vColor === color && v.size === s && v.inventoryCount > 0;
+      })
+    );
+    setSelectedSize(firstInStock ?? derived.sizes[0] ?? null);
+  }
+
   function handleColorChange(color: string | null) {
     if (color === null) return;
     if (isColorAllSoldOut(color, variants)) return;
     setSelectedColor(color);
-
-    // If current size doesn't exist for this color, pick a new default size.
-    if (selectedSize) {
-      const hasCombo = variants.some((v) => {
-        const vColor = (v.color ?? null) || null;
-        return vColor === color && v.size === selectedSize;
-      });
-      if (!hasCombo) {
-        const firstInStock = derived.sizes.find((s) =>
-          variants.some((v) => {
-            const vColor = (v.color ?? null) || null;
-            return vColor === color && v.size === s && v.inventoryCount > 0;
-          })
-        );
-        setSelectedSize(firstInStock ?? derived.sizes[0] ?? null);
-      }
-    }
+    reconcileSizeForColor(color);
   }
 
   function handleSizeChange(size: string | null) {
@@ -254,6 +254,10 @@ export function PdpVariantSelector({
       const nextColor = derived.colors[nextIndex];
       if (!isColorAllSoldOut(nextColor, variants)) {
         setSelectedColor(nextColor);
+        // Same reconciliation as the click path: if the current size
+        // isn't available in the new color, pull selection back to a
+        // valid size so the resolved variant stays useful.
+        reconcileSizeForColor(nextColor);
       }
       colorRefs.current[nextIndex]?.focus();
     }
