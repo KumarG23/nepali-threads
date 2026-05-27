@@ -16,6 +16,7 @@ import { getPayload } from "payload";
 import config from "@payload-config";
 
 import { sendOrderConfirmation } from "@/lib/email/send-order-confirmation";
+import { decrementInventoryForOrder } from "@/lib/inventory";
 
 export type PersistStripeOrderResult =
   | { created: true; orderId: number | string }
@@ -235,6 +236,20 @@ export async function persistStripeOrder(
         billingAddress: shippingAddress,
         stripePaymentIntentId: paymentIntentId,
       },
+    });
+
+    // Decrement inventory for everything in this order. Never throws —
+    // if a variant / product is missing or the update fails, the function
+    // logs and continues. Order is already created at this point; the
+    // worst case is a small inventory drift sister sees in admin.
+    await decrementInventoryForOrder({
+      payload,
+      orderId: order.id,
+      lineItems: snapshot.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+      })),
     });
 
     // Fire the confirmation email. sendOrderConfirmation never throws —
