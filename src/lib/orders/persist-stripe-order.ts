@@ -15,6 +15,7 @@ import { getPayload } from "payload";
 
 import config from "@payload-config";
 
+import { sendAdminOrderNotification } from "@/lib/email/send-admin-order-notification";
 import { sendOrderConfirmation } from "@/lib/email/send-order-confirmation";
 import { decrementInventoryForOrder } from "@/lib/inventory";
 
@@ -271,6 +272,26 @@ export async function persistStripeOrder(
         shippingAddress,
       });
     }
+
+    // Notify the admins (dad, sister, Neal). Same never-throws contract
+    // as the customer email — log + continue if Resend / env config is
+    // off. Recipients come from ADMIN_NOTIFICATION_EMAILS (comma-
+    // separated). The SKU goes in here too so they can pick from the
+    // shelf without cross-referencing the admin UI.
+    await sendAdminOrderNotification({
+      orderId: order.id,
+      customerEmail: customerEmail ?? undefined,
+      customerName: shippingAddress.recipientName || undefined,
+      lineItems: snapshot.map((item) => ({
+        name: item.name,
+        sku: item.sku,
+        quantity: item.quantity,
+        priceCents: item.priceCents,
+      })),
+      subtotalCents,
+      totalCents,
+      shippingAddress,
+    });
 
     return { created: true, orderId: order.id };
   } catch (err) {
