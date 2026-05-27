@@ -202,3 +202,35 @@ OUTPUT NOTES FOR REVIEWER:
 - If you found yourself wanting a shared `VariantPicker<Dimension>` component that handles both color and size with different render bodies — flag it but DO NOT extract yet. The two pickers are similar enough to consider DRYing later, but two specific components for now beats a premature abstraction.
 - If the cart "Color:" label feels wrong for size-only items, note your concern — we'll fix the cart UI in a follow-up, NOT in this task.
 - Mention any place where the resolver felt fragile (null/empty-string coalescing, in particular).
+
+## Notes for Reviewer (Kimi)
+
+### Build status
+`npm run check` exits 0 (typecheck + build clean).
+
+### Edge case: null size in a product that otherwise has sized variants
+Took the simpler path from the spec: if `sizes.length === 0` (no variant has a non-null size), the size row is not rendered at all. If at least one variant has a real size, the size row renders. Variants with `size = null` in a mixed product are effectively unreachable through the picker because the user cannot select a "null" size. This is a deliberate simplification — sister should create a consistent variant matrix. Documented per spec instructions.
+
+### Size pill tap target
+The size pill uses `min-h-[40px]` as specified. This is slightly below the 44px WCAG tap-target guideline. On small screens the buttons are still comfortably tappable due to the `px-4` horizontal padding and the fact that they sit in a `gap-3` flex row with no overlapping targets. If we want to bump to 44px, it's a one-line change.
+
+### Shared `VariantPicker<Dimension>` abstraction
+Yes — the two pickers (color swatches and size pills) share ~80% of their structure: radiogroup wrapper, roving tabindex, arrow-key nav, selected/disabled styling, "Sold out" label. A shared `DimensionPicker<T>` with a render-prop or slot for the button body would DRY this up nicely. I deliberately did NOT extract it per spec instructions; the duplication is contained to one file and the visual differences (round vs rounded-lg, swatch dot vs text label) make a premature abstraction risky.
+
+### Cart "Color:" label for size-only items
+Confirmed concern. A size-only product (e.g. a tunic in S/M/L with no color variants) will show `Color: Small` in the cart. The cart row hardcodes "Color:" prefix. Fixing this is out of scope per spec — flagging for a follow-up cart UI pass.
+
+### Resolver fragility
+The null/empty-string coalescing in `resolveVariant` is the only slightly fragile spot:
+```ts
+const vColor = (v.color ?? null) || null;
+const vSize = (v.size ?? null) || null;
+```
+The `|| null` guards against empty strings being treated as truthy. This works because Payload returns `null` for unset fields, but if sister ever enters an empty string explicitly, it normalizes to `null`. I kept this pattern consistent with the TASK-041 approach. No issues in practice, but it's worth noting that `size` is a typed enum so empty strings are unlikely, while `color` is free text and the empty-string guard is more valuable there.
+
+### Keyboard nav behavior
+Both radiogroups use independent roving tabindex + arrow keys. Tab moves focus between the color group and the size group. Focus rings are visible via `focus-visible:ring-brand-gold-400`. When arrowing to an all-sold-out color or a disabled size, focus moves but selection does not change — matching the TASK-041 no-op pattern for sold-out swatches.
+
+### Files changed
+- `src/app/(frontend)/products/[slug]/_pdp-variant-selector.tsx` — full refactor from `selectedId` to `(selectedColor, selectedSize)` state, conditional color+size rows, `resolveVariant` derivation, updated keyboard nav, inventory/price/gallery wired to resolved variant.
+- `src/app/(frontend)/products/[slug]/_add-to-cart.tsx` — added `unavailable?: boolean` prop to show "This combination isn't available" when the selected (color, size) pair has no matching variant.
