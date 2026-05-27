@@ -362,9 +362,9 @@ export interface ProductVariant {
    */
   sku: string;
   /**
-   * e.g. S, M, L, XL — leave blank if this variant isn't size-specific.
+   * Pick the size for this variant. Leave blank if this variant isn't size-specific.
    */
-  size?: string | null;
+  size?: ('Small' | 'Medium' | 'Large' | 'XL' | 'XXL' | 'One size fits most') | null;
   /**
    * The color name shoppers see, e.g. Crimson, Indigo.
    */

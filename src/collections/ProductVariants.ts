@@ -60,10 +60,21 @@ export const ProductVariants: CollectionConfig = {
     },
     {
       name: "size",
-      type: "text",
+      type: "select",
+      // Storage values match the labels — sizes have no natural
+      // lowercase / enum form, and the label IS what we want to display
+      // on the storefront and in admin alike.
+      options: [
+        { label: "Small", value: "Small" },
+        { label: "Medium", value: "Medium" },
+        { label: "Large", value: "Large" },
+        { label: "XL", value: "XL" },
+        { label: "XXL", value: "XXL" },
+        { label: "One size fits most", value: "One size fits most" },
+      ],
       admin: {
         description:
-          "e.g. S, M, L, XL — leave blank if this variant isn't size-specific.",
+          "Pick the size for this variant. Leave blank if this variant isn't size-specific.",
       },
     },
     {

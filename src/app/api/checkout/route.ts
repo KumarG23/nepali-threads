@@ -1,15 +1,18 @@
 // LOCAL-LLM: DO NOT EDIT
 //
 // POST /api/checkout — creates a Stripe Checkout Session from a cart payload
-// and returns the hosted-checkout URL. The browser may send product IDs and
-// quantities only; all Stripe line item names/prices/images are fetched
-// server-side from Payload so the client cannot tamper with checkout price.
+// and returns the hosted-checkout URL. The browser may send product IDs,
+// variant IDs, and quantities only; all Stripe line item names/prices/images
+// are fetched server-side from Payload so the client cannot tamper with
+// checkout price. When a variantId is present, the variant's price override
+// + inventory + sku are used; otherwise we fall back to the product's
+// basePrice. Out-of-stock variants are rejected with a 409.
 
 import { getPayload } from "payload";
 import { NextResponse } from "next/server";
 
 import config from "@payload-config";
-import type { Product } from "@/payload-types";
+import type { Product, ProductVariant } from "@/payload-types";
 import { getStripe } from "@/lib/stripe/client";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +22,7 @@ const MAX_QUANTITY_PER_ITEM = 99;
 
 type CheckoutRequestItem = {
   productId: number;
+  variantId?: number;
   quantity: number;
 };
 
@@ -28,45 +32,77 @@ type CheckoutBody = {
 
 type AuthoritativeCheckoutItem = {
   productId: number;
+  variantId?: number;
   productSlug: string;
   name: string;
   priceCents: number;
   imageSrc: string;
   imageAlt: string;
   quantity: number;
+  sku?: string;
 };
 
+// Compact metadata snapshot (Stripe metadata values cap at 500 chars).
+// Single-letter keys keep typical 3-line orders well under the limit.
 type ProductSnapshotMetadata = {
-  p: number;
-  n: string;
-  q: number;
-  c: number;
+  p: number; // productId
+  v?: number; // variantId
+  n: string; // name (incl. variant suffix)
+  q: number; // quantity
+  c: number; // priceCents
+  s?: string; // sku
 };
 
 function isCheckoutItem(value: unknown): value is CheckoutRequestItem {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
-  return (
-    Number.isInteger(v.productId) &&
-    Number(v.productId) > 0 &&
-    Number.isInteger(v.quantity) &&
-    Number(v.quantity) > 0 &&
-    Number(v.quantity) <= MAX_QUANTITY_PER_ITEM
-  );
+  if (
+    !Number.isInteger(v.productId) ||
+    Number(v.productId) <= 0 ||
+    !Number.isInteger(v.quantity) ||
+    Number(v.quantity) <= 0 ||
+    Number(v.quantity) > MAX_QUANTITY_PER_ITEM
+  ) {
+    return false;
+  }
+  // variantId is optional but must be a positive integer when present.
+  if (v.variantId !== undefined) {
+    if (!Number.isInteger(v.variantId) || Number(v.variantId) <= 0) {
+      return false;
+    }
+  }
+  return true;
 }
 
+// Two distinct color+size combos of the same product must remain
+// separate line items. Consolidate on (productId, variantId).
 function consolidateItems(items: CheckoutRequestItem[]): CheckoutRequestItem[] {
-  const byProductId = new Map<number, number>();
+  const keyOf = (productId: number, variantId?: number) =>
+    `${productId}:${variantId ?? "base"}`;
+
+  const byKey = new Map<
+    string,
+    { productId: number; variantId?: number; quantity: number }
+  >();
+
   for (const item of items) {
-    byProductId.set(
-      item.productId,
-      (byProductId.get(item.productId) ?? 0) + item.quantity
-    );
+    const key = keyOf(item.productId, item.variantId);
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      byKey.set(key, {
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+      });
+    }
   }
 
-  return [...byProductId.entries()].map(([productId, quantity]) => ({
-    productId,
-    quantity: Math.min(quantity, MAX_QUANTITY_PER_ITEM),
+  return [...byKey.values()].map((entry) => ({
+    productId: entry.productId,
+    variantId: entry.variantId,
+    quantity: Math.min(entry.quantity, MAX_QUANTITY_PER_ITEM),
   }));
 }
 
@@ -100,15 +136,40 @@ function firstProductImage(product: Product): { url: string; alt: string } {
   return { url: "", alt: product.name };
 }
 
+function firstVariantImage(
+  variant: ProductVariant
+): { url: string; alt: string } | null {
+  const entry = variant.images?.[0];
+  const image = entry?.image;
+  if (image && typeof image === "object" && image.url) {
+    return { url: image.url, alt: image.alt ?? "" };
+  }
+  return null;
+}
+
+// "Romper — Crimson, Small" / "Romper — Crimson" / "Romper — Small" / "Romper"
+function variantDisplayName(product: Product, variant: ProductVariant): string {
+  const bits = [variant.color, variant.size].filter(
+    (v): v is string => typeof v === "string" && v.trim().length > 0
+  );
+  if (bits.length === 0) return product.name;
+  return `${product.name} — ${bits.join(", ")}`;
+}
+
 function toMetadataSnapshot(
   items: AuthoritativeCheckoutItem[]
 ): ProductSnapshotMetadata[] {
-  return items.map((item) => ({
-    p: item.productId,
-    n: item.name,
-    q: item.quantity,
-    c: item.priceCents,
-  }));
+  return items.map((item) => {
+    const snapshot: ProductSnapshotMetadata = {
+      p: item.productId,
+      n: item.name,
+      q: item.quantity,
+      c: item.priceCents,
+    };
+    if (item.variantId !== undefined) snapshot.v = item.variantId;
+    if (item.sku) snapshot.s = item.sku;
+    return snapshot;
+  });
 }
 
 async function resolveCheckoutItems(
@@ -119,27 +180,92 @@ async function resolveCheckoutItems(
     throw new Error("too_many_items");
   }
 
-  const productIds = items.map((item) => item.productId);
   const payload = await getPayload({ config });
-  const result = await payload.find({
-    collection: "products",
-    where: {
-      and: [
-        { id: { in: productIds } },
-        { status: { equals: "published" } },
-      ],
-    },
-    limit: productIds.length,
-    depth: 1,
-  });
+
+  const productIds = [...new Set(items.map((item) => item.productId))];
+  const variantIds = [
+    ...new Set(
+      items
+        .map((item) => item.variantId)
+        .filter((id): id is number => typeof id === "number")
+    ),
+  ];
+
+  const [productResult, variantResult] = await Promise.all([
+    payload.find({
+      collection: "products",
+      where: {
+        and: [
+          { id: { in: productIds } },
+          { status: { equals: "published" } },
+        ],
+      },
+      limit: productIds.length,
+      depth: 1,
+    }),
+    variantIds.length > 0
+      ? payload.find({
+          collection: "product-variants",
+          where: { id: { in: variantIds } },
+          limit: variantIds.length,
+          depth: 1,
+        })
+      : Promise.resolve({ docs: [] as ProductVariant[] }),
+  ]);
 
   const productsById = new Map(
-    (result.docs as Product[]).map((product) => [product.id, product])
+    (productResult.docs as Product[]).map((product) => [product.id, product])
+  );
+  const variantsById = new Map(
+    (variantResult.docs as ProductVariant[]).map((variant) => [
+      variant.id,
+      variant,
+    ])
   );
 
   return items.map((item) => {
     const product = productsById.get(item.productId);
     if (!product) throw new Error("unavailable_product");
+
+    if (item.variantId !== undefined) {
+      const variant = variantsById.get(item.variantId);
+      if (!variant) throw new Error("unavailable_variant");
+
+      // Security check: the variant must actually belong to the product
+      // the client claimed. Without this, a tampered cart could send a
+      // cheap variant id with an expensive product id.
+      const variantProductId =
+        typeof variant.product === "object" && variant.product?.id
+          ? variant.product.id
+          : variant.product;
+      if (variantProductId !== product.id) {
+        throw new Error("variant_product_mismatch");
+      }
+
+      if (variant.inventoryCount < item.quantity) {
+        throw new Error("variant_out_of_stock");
+      }
+
+      const variantImage = firstVariantImage(variant);
+      const fallbackImage = firstProductImage(product);
+      const image = variantImage ?? fallbackImage;
+
+      return {
+        productId: product.id,
+        variantId: variant.id,
+        productSlug: product.slug,
+        name: variantDisplayName(product, variant),
+        priceCents: variant.price ?? product.basePrice,
+        imageSrc: image.url,
+        imageAlt: image.alt,
+        quantity: item.quantity,
+        sku: variant.sku,
+      };
+    }
+
+    // Plain product (no variant chosen). If the product has variants in
+    // the DB but the client didn't pick one, that's the storefront's bug
+    // — but we tolerate it here and just use basePrice + product images.
     const image = firstProductImage(product);
     return {
       productId: product.id,
@@ -151,6 +277,34 @@ async function resolveCheckoutItems(
       quantity: item.quantity,
     };
   });
+}
+
+function errorResponseFor(message: string) {
+  switch (message) {
+    case "too_many_items":
+      return {
+        status: 400,
+        error: "Cart contains too many distinct items.",
+      };
+    case "variant_product_mismatch":
+      return {
+        status: 400,
+        error: "Cart contains an invalid variant reference.",
+      };
+    case "variant_out_of_stock":
+      return {
+        status: 409,
+        error:
+          "One or more items in your cart are out of stock at the size or color you picked.",
+      };
+    case "unavailable_variant":
+    case "unavailable_product":
+    default:
+      return {
+        status: 409,
+        error: "One or more items in your cart are no longer available.",
+      };
+  }
 }
 
 export async function POST(request: Request) {
@@ -181,16 +335,8 @@ export async function POST(request: Request) {
     items = await resolveCheckoutItems(rawItems);
   } catch (err) {
     const message = err instanceof Error ? err.message : "resolve_failed";
-    const status = message === "too_many_items" ? 400 : 409;
-    return NextResponse.json(
-      {
-        error:
-          message === "too_many_items"
-            ? "Cart contains too many distinct items."
-            : "One or more items in your cart are no longer available.",
-      },
-      { status }
-    );
+    const { status, error } = errorResponseFor(message);
+    return NextResponse.json({ error }, { status });
   }
 
   const origin = storefrontOrigin(request);

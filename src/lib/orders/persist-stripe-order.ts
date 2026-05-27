@@ -31,16 +31,20 @@ export type PersistStripeOrderResult =
 
 type ProductSnapshot = {
   productId: number;
+  variantId?: number;
   name: string;
   quantity: number;
   priceCents: number;
+  sku?: string;
 };
 
 type CompactProductSnapshot = {
   p: number;
+  v?: number;
   n: string;
   q: number;
   c: number;
+  s?: string;
 };
 
 // Derive the Stripe PaymentIntent id from a session. The payment_intent
@@ -115,9 +119,11 @@ function parseSnapshot(session: Stripe.Checkout.Session): ProductSnapshot[] {
         return [
           {
             productId: item.p,
+            variantId: typeof item.v === "number" ? item.v : undefined,
             name: item.n,
             quantity: item.q,
             priceCents: item.c,
+            sku: typeof item.s === "string" ? item.s : undefined,
           },
         ];
       }
@@ -211,7 +217,12 @@ export async function persistStripeOrder(
         guestEmail: checkoutEmail,
         lineItems: snapshot.map((item) => ({
           product: item.productId,
+          // Optional variant relation. Omitted when the buyer purchased
+          // a product with no variants. nameSnapshot already contains
+          // the formatted "Product — Color, Size" string from /api/checkout.
+          variant: item.variantId,
           nameSnapshot: item.name,
+          skuSnapshot: item.sku,
           quantity: item.quantity,
           priceAtPurchase: item.priceCents,
         })),
