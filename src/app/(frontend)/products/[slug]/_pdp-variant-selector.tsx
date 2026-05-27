@@ -6,7 +6,6 @@ import { PdpGallery } from "./_pdp-gallery";
 import { AddToCartButton } from "./_add-to-cart";
 
 import { formatPriceCents } from "@/lib/format";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 
 import type { Product, ProductVariant } from "@/payload-types";
 
@@ -19,7 +18,11 @@ interface PdpVariantSelectorProps {
   product: Product;
   variants: ProductVariant[];
   productGalleryImages: GalleryImage[];
+  // Server-rendered nodes. Kept out of the client bundle so the
+  // RichText description and category link stay SSR'd for SEO and
+  // bundle size.
   categoryLink?: React.ReactNode;
+  descriptionNode?: React.ReactNode;
 }
 
 function isValidSwatchHex(hex: string | null | undefined): boolean {
@@ -63,6 +66,7 @@ export function PdpVariantSelector({
   variants,
   productGalleryImages,
   categoryLink,
+  descriptionNode,
 }: PdpVariantSelectorProps) {
   const initialId = useMemo(() => {
     const firstInStock = variants.find((v) => v.inventoryCount > 0);
@@ -137,6 +141,7 @@ export function PdpVariantSelector({
 
       {/* Right: info, sticky on desktop */}
       <div className="lg:sticky lg:top-24 lg:self-start">
+        {categoryLink}
         <h1 className="font-serif text-display text-neutral-ink mb-4">
           {product.name}
         </h1>
@@ -218,13 +223,7 @@ export function PdpVariantSelector({
           </div>
         </div>
 
-        {categoryLink}
-
-        {product.description && (
-          <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
-            <RichText data={product.description} />
-          </div>
-        )}
+        {descriptionNode}
 
         <AddToCartButton
           productId={product.id}

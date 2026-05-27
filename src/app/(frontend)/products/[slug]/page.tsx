@@ -49,6 +49,11 @@ export async function generateMetadata({
   return {
     title: product.seoTitle ?? product.name,
     description: product.seoDescription ?? undefined,
+    // Only override openGraph when we actually have a product image.
+    // Omitting the field entirely lets Next's auto-applied
+    // opengraph-image.tsx fallback take over — passing
+    // `images: undefined` would count as explicitly cleared and
+    // break the fallback chain.
     ...(firstImageUrl
       ? { openGraph: { images: [{ url: firstImageUrl }] } }
       : {}),
@@ -126,6 +131,14 @@ export default async function ProductPage({
       </Link>
     ) : null;
 
+  // Render the description server-side so the lexical RichText runtime
+  // stays out of the client bundle and content remains crawlable.
+  const descriptionNode = product.description ? (
+    <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
+      <RichText data={product.description} />
+    </div>
+  ) : null;
+
   return (
     <article className="mx-auto max-w-7xl px-6 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
@@ -135,6 +148,7 @@ export default async function ProductPage({
             variants={variants}
             productGalleryImages={galleryImages}
             categoryLink={categoryLink}
+            descriptionNode={descriptionNode}
           />
         ) : (
           <>
@@ -157,11 +171,7 @@ export default async function ProductPage({
                   {formatPriceCents(product.basePrice)}
                 </p>
               </div>
-              {product.description && (
-                <div className="prose font-sans text-body text-neutral-ink/80 leading-relaxed mb-8">
-                  <RichText data={product.description} />
-                </div>
-              )}
+              {descriptionNode}
               <AddToCartButton
                 productId={product.id}
                 productSlug={product.slug}
