@@ -19,6 +19,27 @@ export const ProductVariants: CollectionConfig = {
     update: ({ req }) => req.user?.collection === "users",
     delete: ({ req }) => req.user?.collection === "users",
   },
+  hooks: {
+    beforeChange: [
+      // Normalize swatchHex: admins may paste "16677F" or "#16677F" —
+      // store the canonical "#16677F" so the storefront's hex regex
+      // matches consistently and the color dot renders.
+      ({ data }) => {
+        if (!data) return data;
+        if (typeof data.swatchHex === "string") {
+          const trimmed = data.swatchHex.trim();
+          if (!trimmed) {
+            data.swatchHex = null;
+          } else if (!trimmed.startsWith("#")) {
+            data.swatchHex = `#${trimmed}`;
+          } else {
+            data.swatchHex = trimmed;
+          }
+        }
+        return data;
+      },
+    ],
+  },
   fields: [
     {
       name: "product",

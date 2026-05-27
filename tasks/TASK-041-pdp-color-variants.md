@@ -65,7 +65,7 @@ Pass `variants` to the new `<PdpVariantSelector>` client component. If the array
 **2. Swatch row UI.**
 
 For each variant:
-- If `swatchHex` is set (matches `/^#[0-9a-fA-F]{6}$/`): render a circular swatch with `background-color: ${swatchHex}` and a 1px neutral-ink/20 ring (or 2px brand-red-600 ring when selected). ~40px diameter on mobile, ~44px on desktop — comfortable tap target.
+- If `swatchHex` is set (matches `/^#[0-9a-fA-F]{6}$/`): render a circular swatch with `background-color: ${swatchHex}` and a 1px neutral-ink/20 ring (or 2px brand-red-600 ring when selected). ~40px diameter on mobile, ~44px on desktop — comfortable tap target. A `beforeChange` hook on ProductVariants already prepends a missing `#`, so you can trust the leading `#` is present whenever the field is non-null; you still need to validate the 6-hex-digit body before rendering the color since admins can type any string.
 - If `swatchHex` is blank or invalid: render a rounded text-button showing the color name. Same selection ring rules.
 - Sold-out variants (`inventoryCount <= 0`): 50% opacity, `aria-disabled="true"`, click is a no-op (don't change selection). Below or inside the swatch, render "Sold out" text in `text-small text-neutral-ink/60`.
 - Label above the row: `Color: <selected variant's color name>` in `font-sans text-small font-medium text-neutral-ink/80`.
