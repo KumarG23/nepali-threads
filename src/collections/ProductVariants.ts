@@ -48,6 +48,19 @@ export const ProductVariants: CollectionConfig = {
     {
       name: "color",
       type: "text",
+      admin: {
+        description:
+          "The color name shoppers see, e.g. Crimson, Indigo.",
+      },
+    },
+    {
+      name: "swatchHex",
+      type: "text",
+      label: "Swatch color",
+      admin: {
+        description:
+          "Optional. A hex code like #9B2C2C — used as the round color dot on the product page. If blank, the color name shows as a text button instead.",
+      },
     },
     {
       name: "price",

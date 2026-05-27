@@ -21,9 +21,17 @@ export const Products: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
+      // Always normalize the slug. If the admin left it blank, auto-fill
+      // from name. If they typed something custom (for SEO), still run it
+      // through slugify so spaces/capitals/punctuation can't sneak into
+      // the URL and break the storefront. "One Size Fits All Romper"
+      // becomes "one-size-fits-all-romper" either way.
       ({ data }) => {
-        if (data && !data.slug && data.name) {
-          data.slug = slugify(data.name);
+        if (!data) return data;
+        if (data.slug) {
+          data.slug = slugify(String(data.slug));
+        } else if (data.name) {
+          data.slug = slugify(String(data.name));
         }
         return data;
       },
@@ -78,6 +86,16 @@ export const Products: CollectionConfig = {
                   Field: "@/components/admin/MoneyField",
                   Cell: "@/components/admin/MoneyField#MoneyCell",
                 },
+              },
+            },
+            {
+              name: "inventoryCount",
+              type: "number",
+              min: 0,
+              label: "Inventory",
+              admin: {
+                description:
+                  "How many in stock. Leave blank for items you're not tracking yet. If this product has color variants, set inventory on each variant instead — this field is ignored.",
               },
             },
             {

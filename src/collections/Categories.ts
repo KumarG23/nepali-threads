@@ -24,9 +24,15 @@ export const Categories: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
+      // Always normalize the slug — if the admin typed something custom
+      // (for SEO), still strip spaces/capitals/punctuation so the URL
+      // can't break. Empty slug auto-fills from name.
       ({ data }) => {
-        if (!data.slug && data.name) {
-          data.slug = slugify(data.name);
+        if (!data) return data;
+        if (data.slug) {
+          data.slug = slugify(String(data.slug));
+        } else if (data.name) {
+          data.slug = slugify(String(data.name));
         }
         return data;
       },

@@ -318,6 +318,10 @@ export interface Product {
    */
   basePrice: number;
   /**
+   * How many in stock. Leave blank for items you're not tracking yet. If this product has color variants, set inventory on each variant instead — this field is ignored.
+   */
+  inventoryCount?: number | null;
+  /**
    * Drag to reorder. First photo is the main image. Optional — you can save a draft and add photos later.
    */
   images?:
@@ -361,7 +365,14 @@ export interface ProductVariant {
    * e.g. S, M, L, XL — leave blank if this variant isn't size-specific.
    */
   size?: string | null;
+  /**
+   * The color name shoppers see, e.g. Crimson, Indigo.
+   */
   color?: string | null;
+  /**
+   * Optional. A hex code like #9B2C2C — used as the round color dot on the product page. If blank, the color name shows as a text button instead.
+   */
+  swatchHex?: string | null;
   /**
    * Optional. If set, this overrides the product's base price for this variant. Stored as integer cents.
    */
@@ -790,6 +801,7 @@ export interface ProductsSelect<T extends boolean = true> {
   description?: T;
   category?: T;
   basePrice?: T;
+  inventoryCount?: T;
   images?:
     | T
     | {
@@ -813,6 +825,7 @@ export interface ProductVariantsSelect<T extends boolean = true> {
   sku?: T;
   size?: T;
   color?: T;
+  swatchHex?: T;
   price?: T;
   inventoryCount?: T;
   images?:
