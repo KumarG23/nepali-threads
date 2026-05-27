@@ -5,11 +5,14 @@ import { useCart } from "@/store/cart";
 
 type AddToCartButtonProps = {
   productId: number;
+  variantId?: number;
   productSlug: string;
   name: string;
+  variantLabel?: string;
   priceCents: number;
   imageSrc: string;
   imageAlt: string;
+  disabled?: boolean;
 };
 
 export function AddToCartButton(props: AddToCartButtonProps) {
@@ -20,9 +23,10 @@ export function AddToCartButton(props: AddToCartButtonProps) {
       variant="primary"
       size="lg"
       className="w-full sm:w-auto"
+      disabled={props.disabled}
       onClick={() => addItem(props)}
     >
-      Add to cart
+      {props.disabled ? "Sold out" : "Add to cart"}
     </Button>
   );
 }

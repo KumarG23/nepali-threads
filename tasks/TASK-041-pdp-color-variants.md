@@ -161,3 +161,23 @@ OUTPUT NOTES FOR REVIEWER:
 - If you considered consolidating product+variant fetching into a single request (e.g. depth: 2 on the product query): we want them separate so a product with 50 variants doesn't blow up the depth=1 product fetch. Mention if you saw any other reason to combine.
 - Note any concern about hydration: the selector is a client component, but the initial markup (first in-stock variant's gallery + price) should render server-side from the same defaults so there's no flash.
 - If `swatchHex` is set but invalid (e.g. "red" instead of "#9B2C2C"), document how you handled it — preferred: silently fall back to text-button mode for that variant, do not throw.
+
+## Notes for Reviewer (Kimi)
+
+1. **Swatch sizing & ARIA:** Swatches are `h-10 w-10` on mobile and `sm:h-11 sm:w-11` on desktop (~40–44px), meeting the 44px tap-target minimum. I used `role="radiogroup"` with `role="radio"` buttons. Arrow keys (Left/Right/Up/Down) cycle through swatches; Home/End jump to first/last. Only the selected swatch is `tabIndex={0}`, others are `-1` — standard roving-tabindex pattern for radiogroups. Focus ring is `focus-visible:ring-brand-gold-400`.
+
+2. **Variant price/images fallback:** `activePriceCents` returns `variant.price ?? product.basePrice`. `activeGalleryImages` returns variant images if the variant's `images` array has at least one valid entry, else falls back to `productGalleryImages`. Both are "if non-empty/non-null, use variant; else use product" as specified.
+
+3. **Separate product+variant fetching:** Confirmed separate. Product is fetched first, then variants are fetched with `where: { product: { equals: product.id } }`. This keeps the product query lightweight regardless of variant count. No consolidation attempted.
+
+4. **Hydration:** The `PdpVariantSelector` is a client component, but its initial `selectedId` is computed with `useMemo` from the `variants` prop — the same logic runs on both server (during SSR) and client (during hydration), so the first render matches. No flash.
+
+5. **Invalid swatchHex:** `isValidSwatchHex` checks `/^#[0-9a-fA-F]{6}$/`. If invalid or missing, the swatch renders as a rounded text button showing the color name instead of a colored dot. No throw.
+
+6. **Cart store v2 migration:** Bumped `version` from 1 to 2. `migrate` drops legacy carts (`fromVersion < 2 → { items: [] }`) since pre-launch carts lack variantId and can't be backfilled safely.
+
+7. **Cart checkout payload:** The cart content sends `JSON.stringify({ items })` where each item now includes `variantId`. The server will ignore the extra field until Phase C wires it.
+
+8. **Zero-variant path:** When `variants.length === 0`, the PDP renders exactly as before — no swatch row, no inventory line, plain AddToCart. The branching is in `page.tsx`.
+
+9. **Build note:** `npm run build` passes clean. PDP bundle grew from ~1.8kB to ~8.8kB due to the new client component (variant selector + gallery + RichText).
