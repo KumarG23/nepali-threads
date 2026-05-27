@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { PdpGallery } from "./_pdp-gallery";
 import { AddToCartButton } from "./_add-to-cart";
@@ -18,12 +18,18 @@ interface PdpVariantSelectorProps {
   product: Product;
   variants: ProductVariant[];
   productGalleryImages: GalleryImage[];
-  // Server-rendered nodes. Kept out of the client bundle so the
-  // RichText description and category link stay SSR'd for SEO and
-  // bundle size.
   categoryLink?: React.ReactNode;
   descriptionNode?: React.ReactNode;
 }
+
+const SIZE_ORDER: NonNullable<ProductVariant["size"]>[] = [
+  "Small",
+  "Medium",
+  "Large",
+  "XL",
+  "XXL",
+  "One size fits most",
+];
 
 function isValidSwatchHex(hex: string | null | undefined): boolean {
   return typeof hex === "string" && /^#[0-9a-fA-F]{6}$/.test(hex);
@@ -41,24 +47,76 @@ function extractVariantImages(variant: ProductVariant): GalleryImage[] {
     .filter((x): x is GalleryImage => x !== null);
 }
 
-function activePriceCents(product: Product, variant: ProductVariant): number {
-  return variant.price ?? product.basePrice;
+function activePriceCents(
+  product: Product,
+  variant: ProductVariant | null
+): number {
+  return variant?.price ?? product.basePrice;
 }
 
 function activeGalleryImages(
   product: Product,
-  variant: ProductVariant,
+  variant: ProductVariant | null,
   productGalleryImages: GalleryImage[]
 ): GalleryImage[] {
+  if (!variant) return productGalleryImages;
   const variantImages = extractVariantImages(variant);
   return variantImages.length > 0 ? variantImages : productGalleryImages;
 }
 
-function inventoryLine(variant: ProductVariant): string | null {
+function inventoryLine(variant: ProductVariant | null): string | null {
+  if (!variant) return null;
   if (variant.inventoryCount <= 0) return "Sold out";
   if (variant.inventoryCount <= 3)
     return `Only ${variant.inventoryCount} left`;
   return null;
+}
+
+function resolveVariant(
+  variants: ProductVariant[],
+  color: string | null,
+  size: string | null
+): ProductVariant | null {
+  return (
+    variants.find((v) => {
+      const vColor = (v.color ?? null) || null;
+      const vSize = (v.size ?? null) || null;
+      return vColor === color && vSize === size;
+    }) ?? null
+  );
+}
+
+function formatVariantLabel(
+  color: string | null,
+  size: string | null
+): string | undefined {
+  if (color && size) return `${color}, ${size}`;
+  if (color) return color;
+  if (size) return size;
+  return undefined;
+}
+
+function isColorAllSoldOut(
+  color: string,
+  variants: ProductVariant[]
+): boolean {
+  const colorVariants = variants.filter((v) => v.color === color);
+  return (
+    colorVariants.length > 0 &&
+    colorVariants.every((v) => v.inventoryCount <= 0)
+  );
+}
+
+function isSizeDisabled(
+  size: string,
+  color: string | null,
+  variants: ProductVariant[]
+): boolean {
+  const match = variants.find((v) => {
+    const vColor = (v.color ?? null) || null;
+    return vColor === color && v.size === size;
+  });
+  return !match || match.inventoryCount <= 0;
 }
 
 export function PdpVariantSelector({
@@ -68,64 +126,166 @@ export function PdpVariantSelector({
   categoryLink,
   descriptionNode,
 }: PdpVariantSelectorProps) {
-  const initialId = useMemo(() => {
-    const firstInStock = variants.find((v) => v.inventoryCount > 0);
-    return firstInStock?.id ?? variants[0]?.id;
+  const derived = useMemo(() => {
+    const colors = [
+      ...new Set(
+        variants
+          .map((v) => v.color)
+          .filter(
+            (c): c is string => typeof c === "string" && c.trim().length > 0
+          )
+      ),
+    ];
+
+    const rawSizes: NonNullable<ProductVariant["size"]>[] = [
+      ...new Set(
+        variants
+          .map((v) => v.size)
+          .filter(
+            (s): s is NonNullable<ProductVariant["size"]> => Boolean(s)
+          )
+      ),
+    ];
+    const sizes = rawSizes
+      .slice()
+      .sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+
+    const defaultColor = (() => {
+      const inStock = colors.find((c) =>
+        variants.some((v) => v.color === c && v.inventoryCount > 0)
+      );
+      return inStock ?? colors[0] ?? null;
+    })();
+
+    const defaultSize = (() => {
+      if (sizes.length === 0) return null;
+      if (defaultColor) {
+        const inStock = sizes.find((s) =>
+          variants.some(
+            (v) =>
+              v.color === defaultColor && v.size === s && v.inventoryCount > 0
+          )
+        );
+        return inStock ?? sizes[0] ?? null;
+      }
+      const inStock = sizes.find((s) =>
+        variants.some((v) => v.size === s && v.inventoryCount > 0)
+      );
+      return inStock ?? sizes[0] ?? null;
+    })();
+
+    return { colors, sizes, defaultColor, defaultSize };
   }, [variants]);
 
-  const [selectedId, setSelectedId] = useState<number>(initialId);
-  const swatchRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string | null>(
+    () => derived.defaultColor
+  );
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    () => derived.defaultSize
+  );
 
-  // Keep selection in sync if initialId changes (e.g. remount with new data)
-  useEffect(() => {
-    if (!variants.find((v) => v.id === selectedId)) {
-      setSelectedId(initialId);
-    }
-  }, [initialId, selectedId, variants]);
+  const colorRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const sizeRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const selectedVariant = variants.find((v) => v.id === selectedId)!;
+  const resolvedVariant = resolveVariant(variants, selectedColor, selectedSize);
 
   const galleryImages = activeGalleryImages(
     product,
-    selectedVariant,
+    resolvedVariant,
     productGalleryImages
   );
-  const priceCents = activePriceCents(product, selectedVariant);
+  const priceCents = activePriceCents(product, resolvedVariant);
   const firstImage = galleryImages[0] ?? null;
-  const inventoryText = inventoryLine(selectedVariant);
-  const isSoldOut = selectedVariant.inventoryCount <= 0;
+  const inventoryText = inventoryLine(resolvedVariant);
+  const isSoldOut = resolvedVariant ? resolvedVariant.inventoryCount <= 0 : true;
+  const isUnavailable = resolvedVariant === null;
 
-  function handleSelect(variantId: number) {
-    const variant = variants.find((v) => v.id === variantId);
-    if (!variant || variant.inventoryCount <= 0) return;
-    setSelectedId(variantId);
+  function handleColorChange(color: string | null) {
+    if (color === null) return;
+    if (isColorAllSoldOut(color, variants)) return;
+    setSelectedColor(color);
+
+    // If current size doesn't exist for this color, pick a new default size.
+    if (selectedSize) {
+      const hasCombo = variants.some((v) => {
+        const vColor = (v.color ?? null) || null;
+        return vColor === color && v.size === selectedSize;
+      });
+      if (!hasCombo) {
+        const firstInStock = derived.sizes.find((s) =>
+          variants.some((v) => {
+            const vColor = (v.color ?? null) || null;
+            return vColor === color && v.size === s && v.inventoryCount > 0;
+          })
+        );
+        setSelectedSize(firstInStock ?? derived.sizes[0] ?? null);
+      }
+    }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent) {
-    const currentIndex = variants.findIndex((v) => v.id === selectedId);
+  function handleSizeChange(size: string | null) {
+    if (size === null) return;
+    if (isSizeDisabled(size, selectedColor, variants)) return;
+    setSelectedSize(size);
+  }
+
+  function handleColorKeyDown(event: React.KeyboardEvent) {
+    if (derived.colors.length === 0) return;
+    const currentIndex = derived.colors.findIndex((c) => c === selectedColor);
     if (currentIndex === -1) return;
 
     let nextIndex = currentIndex;
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      nextIndex = (currentIndex + 1) % variants.length;
+      nextIndex = (currentIndex + 1) % derived.colors.length;
     } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      nextIndex = (currentIndex - 1 + variants.length) % variants.length;
+      nextIndex =
+        (currentIndex - 1 + derived.colors.length) % derived.colors.length;
     } else if (event.key === "Home") {
       event.preventDefault();
       nextIndex = 0;
     } else if (event.key === "End") {
       event.preventDefault();
-      nextIndex = variants.length - 1;
+      nextIndex = derived.colors.length - 1;
     }
 
     if (nextIndex !== currentIndex) {
-      const nextVariant = variants[nextIndex];
-      if (nextVariant.inventoryCount > 0) {
-        setSelectedId(nextVariant.id);
+      const nextColor = derived.colors[nextIndex];
+      if (!isColorAllSoldOut(nextColor, variants)) {
+        setSelectedColor(nextColor);
       }
-      swatchRefs.current[nextIndex]?.focus();
+      colorRefs.current[nextIndex]?.focus();
+    }
+  }
+
+  function handleSizeKeyDown(event: React.KeyboardEvent) {
+    if (derived.sizes.length === 0) return;
+    const currentIndex = derived.sizes.findIndex((s) => s === selectedSize);
+    if (currentIndex === -1) return;
+
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      nextIndex = (currentIndex + 1) % derived.sizes.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      nextIndex =
+        (currentIndex - 1 + derived.sizes.length) % derived.sizes.length;
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      event.preventDefault();
+      nextIndex = derived.sizes.length - 1;
+    }
+
+    if (nextIndex !== currentIndex) {
+      const nextSize = derived.sizes[nextIndex];
+      if (!isSizeDisabled(nextSize, selectedColor, variants)) {
+        setSelectedSize(nextSize);
+      }
+      sizeRefs.current[nextIndex]?.focus();
     }
   }
 
@@ -133,10 +293,7 @@ export function PdpVariantSelector({
     <>
       {/* Gallery */}
       <div>
-        <PdpGallery
-          images={galleryImages}
-          productName={product.name}
-        />
+        <PdpGallery images={galleryImages} productName={product.name} />
       </div>
 
       {/* Right: info, sticky on desktop */}
@@ -155,7 +312,7 @@ export function PdpVariantSelector({
         {inventoryText && (
           <p
             className={`font-sans text-small mb-4 ${
-              isSoldOut
+              resolvedVariant && resolvedVariant.inventoryCount <= 0
                 ? "text-neutral-ink/60"
                 : "text-brand-red-700"
             }`}
@@ -164,77 +321,152 @@ export function PdpVariantSelector({
           </p>
         )}
 
-        {/* Swatch selector */}
-        <div
-          role="radiogroup"
-          aria-label="Color"
-          className="mb-6"
-          onKeyDown={handleKeyDown}
-        >
-          <p className="font-sans text-small font-medium text-neutral-ink/80 mb-3">
-            Color:{" "}
-            <span className="font-normal text-neutral-ink/60">
-              {selectedVariant.color ?? "Default"}
-            </span>
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            {variants.map((variant, index) => {
-              const isSelected = variant.id === selectedId;
-              const isOutOfStock = variant.inventoryCount <= 0;
-              const hasHex = isValidSwatchHex(variant.swatchHex);
+        {/* Color selector */}
+        {derived.colors.length > 0 && (
+          <div
+            role="radiogroup"
+            aria-label="Color"
+            className="mb-6"
+            onKeyDown={handleColorKeyDown}
+          >
+            <p className="font-sans text-small font-medium text-neutral-ink/80 mb-3">
+              Color:{" "}
+              <span className="font-normal text-neutral-ink/60">
+                {selectedColor ?? "—"}
+              </span>
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {derived.colors.map((color, index) => {
+                const isSelected = color === selectedColor;
+                const isOutOfStock = isColorAllSoldOut(color, variants);
+                const representative = variants.find((v) => v.color === color);
+                const hasHex = isValidSwatchHex(representative?.swatchHex);
 
-              return (
-                <div key={variant.id} className="flex flex-col items-center gap-1">
-                  <button
-                    ref={(el) => { swatchRefs.current[index] = el; }}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    aria-label={variant.color ?? `Variant ${index + 1}`}
-                    aria-disabled={isOutOfStock || undefined}
-                    tabIndex={isSelected ? 0 : -1}
-                    onClick={() => handleSelect(variant.id)}
-                    className={[
-                      "relative rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2",
-                      isOutOfStock ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-                      isSelected
-                        ? "ring-2 ring-brand-red-600 ring-offset-2"
-                        : "ring-1 ring-neutral-ink/20 hover:ring-neutral-ink/40",
-                      hasHex
-                        ? "h-10 w-10 sm:h-11 sm:w-11"
-                        : "min-h-[40px] px-3 py-2 sm:min-h-[44px] sm:px-4 font-sans text-small",
-                    ].join(" ")}
-                    style={
-                      hasHex && variant.swatchHex
-                        ? { backgroundColor: variant.swatchHex }
-                        : undefined
-                    }
+                return (
+                  <div
+                    key={color}
+                    className="flex flex-col items-center gap-1"
                   >
-                    {!hasHex && (variant.color ?? "—")}
-                  </button>
-                  {isOutOfStock && (
-                    <span className="font-sans text-[0.625rem] text-neutral-ink/60">
-                      Sold out
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                    <button
+                      ref={(el) => {
+                        colorRefs.current[index] = el;
+                      }}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      aria-label={color}
+                      aria-disabled={isOutOfStock || undefined}
+                      tabIndex={isSelected ? 0 : -1}
+                      onClick={() => handleColorChange(color)}
+                      className={[
+                        "relative rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2",
+                        isOutOfStock
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer",
+                        isSelected
+                          ? "ring-2 ring-brand-red-600 ring-offset-2"
+                          : "ring-1 ring-neutral-ink/20 hover:ring-neutral-ink/40",
+                        hasHex
+                          ? "h-10 w-10 sm:h-11 sm:w-11"
+                          : "min-h-[40px] px-3 py-2 sm:min-h-[44px] sm:px-4 font-sans text-small",
+                      ].join(" ")}
+                      style={
+                        hasHex && representative?.swatchHex
+                          ? { backgroundColor: representative.swatchHex }
+                          : undefined
+                      }
+                    >
+                      {!hasHex && color}
+                    </button>
+                    {isOutOfStock && (
+                      <span className="font-sans text-[0.625rem] text-neutral-ink/60">
+                        Sold out
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Size selector */}
+        {derived.sizes.length > 0 && (
+          <div
+            role="radiogroup"
+            aria-label="Size"
+            className="mb-6"
+            onKeyDown={handleSizeKeyDown}
+          >
+            <p className="font-sans text-small font-medium text-neutral-ink/80 mb-3">
+              Size:{" "}
+              <span className="font-normal text-neutral-ink/60">
+                {selectedSize ?? "—"}
+              </span>
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {derived.sizes.map((size, index) => {
+                const isSelected = size === selectedSize;
+                const isDisabled = isSizeDisabled(
+                  size,
+                  selectedColor,
+                  variants
+                );
+
+                return (
+                  <div
+                    key={size}
+                    className="flex flex-col items-center gap-1"
+                  >
+                    <button
+                      ref={(el) => {
+                        sizeRefs.current[index] = el;
+                      }}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      aria-label={size}
+                      aria-disabled={isDisabled || undefined}
+                      tabIndex={isSelected ? 0 : -1}
+                      onClick={() => handleSizeChange(size)}
+                      className={[
+                        "relative rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 font-sans text-small",
+                        isDisabled
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer",
+                        isSelected
+                          ? "ring-2 ring-brand-red-600"
+                          : "ring-1 ring-neutral-ink/20 hover:ring-neutral-ink/40",
+                        "min-h-[40px] px-4 py-2",
+                      ].join(" ")}
+                    >
+                      {size}
+                    </button>
+                    {isDisabled && (
+                      <span className="font-sans text-[0.625rem] text-neutral-ink/60">
+                        Sold out
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {descriptionNode}
 
         <AddToCartButton
           productId={product.id}
-          variantId={selectedVariant.id}
+          variantId={resolvedVariant?.id}
           productSlug={product.slug}
           name={product.name}
-          variantLabel={selectedVariant.color ?? undefined}
+          variantLabel={formatVariantLabel(selectedColor, selectedSize)}
           priceCents={priceCents}
           imageSrc={firstImage?.url ?? ""}
           imageAlt={firstImage?.alt ?? product.name}
           disabled={isSoldOut}
+          unavailable={isUnavailable}
         />
       </div>
     </>

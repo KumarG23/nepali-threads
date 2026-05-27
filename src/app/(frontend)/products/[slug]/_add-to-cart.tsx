@@ -13,20 +13,26 @@ type AddToCartButtonProps = {
   imageSrc: string;
   imageAlt: string;
   disabled?: boolean;
+  unavailable?: boolean;
 };
 
 export function AddToCartButton(props: AddToCartButtonProps) {
   const addItem = useCart((state) => state.addItem);
+  const { unavailable, disabled, ...rest } = props;
 
   return (
     <Button
       variant="primary"
       size="lg"
       className="w-full sm:w-auto"
-      disabled={props.disabled}
-      onClick={() => addItem(props)}
+      disabled={disabled}
+      onClick={() => addItem(rest)}
     >
-      {props.disabled ? "Sold out" : "Add to cart"}
+      {unavailable
+        ? "This combination isn't available"
+        : disabled
+          ? "Sold out"
+          : "Add to cart"}
     </Button>
   );
 }
