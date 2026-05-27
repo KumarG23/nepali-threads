@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "payload migrate && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "migrate": "payload migrate",
     "check": "npm run typecheck && npm run build",
     "prepare": "husky",
     "postinstall": "patch-package"
