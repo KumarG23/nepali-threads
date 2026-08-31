@@ -12,7 +12,7 @@ The product is not a generic ecommerce demo. It must be usable by nontechnical f
 
 ## Stack
 
-- Next.js 15 App Router, TypeScript, React 19
+- Next.js 16 App Router, TypeScript, React 19
 - Payload CMS 3
 - Neon Postgres
 - Cloudflare R2 through Payload's S3 adapter
@@ -40,9 +40,10 @@ The product is not a generic ecommerce demo. It must be usable by nontechnical f
 5. Run `npx payload generate:types` after schema changes.
 6. Run `npx payload generate:importmap` after adding or changing admin components, views, collections, or Payload plugins.
 7. Run `npm run check` before calling application work complete.
-8. For checkout, auth, orders, inventory, or email, add focused tests or an executable smoke check. A green build alone is not enough.
-9. Do not put customer data, credentials, Stripe payloads, or private business details in prompts, logs, fixtures, screenshots, or committed files.
-10. Do not push, deploy, migrate production, or mutate live catalog data unless Neal explicitly scopes that action.
+8. Run `npm run audit:production` for dependency changes and release gates. High or critical production findings fail the gate; lower findings require a documented reachability and mitigation decision.
+9. For checkout, auth, orders, inventory, or email, add focused tests or an executable smoke check. A green build alone is not enough.
+10. Do not put customer data, credentials, Stripe payloads, or private business details in prompts, logs, fixtures, screenshots, or committed files.
+11. Do not push, deploy, migrate production, or mutate live catalog data unless Neal explicitly scopes that action.
 
 ## High-risk paths
 
@@ -144,6 +145,7 @@ After pulling dependency changes or switching branches with a different lockfile
 ```bash
 npm install
 npm ls next payload @payloadcms/next --depth=0
+npm run audit:production
 npm run check
 ```
 
@@ -159,11 +161,12 @@ Do not run production migrations merely to see whether they work. Use the intend
 
 ## Intentional oddities
 
-- `patches/payload+3.84.1.patch` fixes Payload CLI environment loading on Node 24+. It applies through `postinstall`. Remove only after verifying the upstream bug is fixed.
+- `patches/payload+3.88.0.patch` fixes Payload CLI environment loading on modern Node when `@next/env` ESM interop fails. It applies through `postinstall`. Remove only after verifying the upstream bug is fixed.
 - `"type": "module"` in `package.json` is load-bearing for the Payload/Lexical import graph.
 - `src/payload.config.ts` uses relative imports for Payload CLI compatibility.
 - `src/app/(payload)/admin/importMap.js` is generated.
-- Next is overridden to 15.5.x because the old Payload peer range lagged security patches. Re-evaluate the override when Payload is upgraded.
+- Next 16.3.3, Payload 3.88.0, React 19.2.8, and Sharp 0.35.4 are pinned as one reviewed compatibility/security set. Upgrade them together unless upstream peer ranges prove otherwise.
+- `docs/dependency-security.md` records the production audit gate and accepted vendor-owned moderate findings.
 - Direct-to-R2 uploads avoid Vercel's request-body size limit.
 
 ## Project records

@@ -1,10 +1,10 @@
 # Nepali Threads project review
 
-Audit snapshot: 2026-08-31 09:22 EDT.
+Original audit snapshot: 2026-08-31 09:22 EDT. Current remediation status is folded into the sections below so historical findings are not mistaken for open work.
 
 ## Executive read
 
-The repo exists at `/home/neal/code/nepali-threads`, is clean on `main`, and matches `origin/main` at `7339ee3`. It is a functioning deployed ecommerce application, not a scaffold.
+The repo is a functioning deployed ecommerce application, not a scaffold.
 
 It is not launch-ready.
 
@@ -19,20 +19,16 @@ The fastest path is not “finish every planned feature.” It is:
 
 ## Verified repository state
 
-- Stack: Next.js 15.5.18, Payload 3.84.1, React 19.1, Neon, R2, Stripe, Resend.
-- Main branch is clean and `0 ahead / 0 behind` its upstream after fetch.
-- Application code is roughly 3,862 TS/TSX lines plus generated/migration JSON and 49 Markdown files after this review.
+- Stack after dependency remediation: Next.js 16.3.3, Payload 3.88.0, React 19.2.8, Sharp 0.35.4, Neon, R2, Stripe, Resend.
+- Application code is roughly 3,862 TS/TSX lines plus generated/migration JSON and 50 Markdown files after this review.
 - `npm ls next payload @payloadcms/next --depth=0` resolves the expected versions.
-- `npm run check` passes: the focused Node test suite, TypeScript compilation, and the Next.js production build all completed successfully. The build emits a workspace-root warning because `/home/neal/package-lock.json` and the repo lockfile both exist; this is non-fatal but should be cleaned up with `outputFileTracingRoot` or workspace hygiene.
-- `npm audit --omit=dev` reports 26 known dependency advisories in the current lockfile: 19 high and 7 moderate, with none critical. Direct affected packages include Next 15.5.18, Payload 3.84.1, and Sharp 0.34.5; additional findings are transitive. This needs a coordinated, separately tested stack upgrade rather than `npm audit fix --force`: the audit fixer currently trips over the `$next` override, and Payload 3.88.0's supported peer ranges move the secure path toward Next 16.2.6+ rather than a blind patch bump.
-- No GitHub Actions workflows or recent CI runs were found.
-- `README.md` was still the stock Next.js README before this review.
-- The old 621-line `CLAUDE.md` described retired Kimi/Gemini/Claude routing and stale phase status.
+- `npm run check` passes with 36 focused tests, TypeScript compilation, and a Next.js production build.
+- `npm audit --omit=dev` is reduced from 19 high / 7 moderate to 0 high / 0 critical / 6 moderate / 1 low. The residual findings are vendor-owned Payload/Drizzle CLI tooling and Monaco's bundled DOMPurify; reachability and follow-up are documented in `docs/dependency-security.md`.
+- GitHub Actions performs a clean install, high/critical production dependency audit, tests, typecheck, and production build.
+- `README.md` is project-specific and `AGENTS.md` is canonical; `CLAUDE.md` is only a compatibility pointer.
 - There is one old stash containing package-file churn and several stale remote branches. Most named fix/task branches are already ancestors of `main`; `local/TASK-038-039-account-polish` still has three unique old commits and needs a deliberate salvage-or-delete decision.
 
-### Remediation prepared on the review branch
-
-The audit facts above describe `main` and the live site at the snapshot time. The review branch now also contains:
+### Remediation delivered after the original snapshot
 
 - a tested, no-write CSV inventory validator and grouped dry-run planner,
 - product-level stock gating plus server-side variant selection enforcement while the variant-only migration is pending,
@@ -40,7 +36,7 @@ The audit facts above describe `main` and the live site at the snapshot time. Th
 - a Node test script included in `npm run check`,
 - GitHub Actions CI for clean install, tests, typecheck, and build.
 
-None of these branch changes mutate production catalog data or deploy themselves.
+These changes do not mutate production catalog data.
 
 ## Verified live state
 
@@ -62,9 +58,9 @@ Historical migration material already describes 15 products across 4 categories,
 
 ### 1. Inventory has two competing sources
 
-`Products.inventoryCount` is optional while `ProductVariants.inventoryCount` is required. Checkout checks variant stock but does not check product-level inventory for a plain product. A zero-stock non-variant product can still enter Stripe Checkout.
+`Products.inventoryCount` remains optional while `ProductVariants.inventoryCount` is required. Checkout now gates both paths and requires a variant whenever variants exist, closing the immediate bypass. The two-source model remains transitional debt.
 
-Recommendation: normalize every sellable stock unit to a variant/SKU, then gate and decrement one inventory source. Until migration, add a product-level checkout guard immediately.
+Recommendation: normalize every sellable stock unit to a variant/SKU, then gate and decrement one inventory source.
 
 ### 2. Manual inventory operations do not fit the business
 
@@ -80,13 +76,13 @@ Recommendation: load/reconcile the real catalog as drafts, review it, then unpub
 
 ### 4. Public navigation is mostly dead
 
-Eight linked routes currently return 404. Dead policy, contact, shipping, and returns links are especially bad for checkout trust.
+Unavailable footer routes were removed, so the storefront no longer advertises dead pages. Required policy/contact content still does not exist.
 
 Recommendation: create the minimum real pages or remove the links. Privacy, terms, shipping, returns, and contact are launch requirements; press and sustainability can wait.
 
 ### 5. Newsletter claims success without doing anything
 
-`src/components/storefront/_footer-newsletter.tsx` supplies a stub when no callback is provided. The production footer therefore reports success without storing or sending the email.
+Resolved: the footer no longer renders or reports a newsletter subscription when no real handler exists.
 
 Recommendation: connect a real double-opt-in or remove/disable the form until it exists. Fake success is worse than no form.
 
@@ -96,17 +92,17 @@ Order persistence does a find-then-create lookup on `stripePaymentIntentId`, but
 
 Recommendation: add a unique constraint/migration or redesign idempotent persistence around an atomic database guarantee; test the concurrent/retry case.
 
-### 7. Dependency audit is red
+### 7. Dependency high/critical audit is resolved
 
-`npm audit --omit=dev` reports 26 vulnerabilities: 19 high and 7 moderate. The tree includes advisories in Next, Payload transitive dependencies, Sharp, Undici, PostCSS, DOMPurify/Monaco, and others.
+The coordinated Next/Payload/React/Sharp upgrade removes all high and critical production advisories. The remaining 6 moderate and 1 low findings are documented vendor debt, not silently ignored.
 
-Recommendation: upgrade Payload/Next and safe transitive patches on a branch, run full checks/admin smoke tests, and review which advisories are production-reachable. Do not blindly run a breaking `npm audit fix --force` on the shop.
+Recommendation: keep `npm run audit:production` in CI, review the complete audit during dependency work, and remove the accepted exceptions when Payload/Drizzle/Monaco publish safe upgrades.
 
 ## P1 — required before taking real orders
 
 ### Automated coverage
 
-There is no test script, lint script, or CI workflow. `npm run check` only typechecks and builds.
+CI now runs a clean install, high/critical production audit, 36 focused tests, typecheck, and production build. Coverage is still thin on the integration paths below.
 
 Add focused tests for:
 
@@ -119,7 +115,7 @@ Add focused tests for:
 - email verification/order claiming,
 - shipping notification idempotency.
 
-Add CI that installs from the lockfile and runs typecheck, tests, and build with safe test configuration.
+Expand the existing route-level and integration coverage as each high-risk path changes.
 
 ### Refund and reconciliation behavior
 

@@ -3,12 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.18.1"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-test-module-mocks --import tsx --test tests/*.test.ts",
+    "audit:production": "npm audit --omit=dev --audit-level=high",
     "inventory:plan": "tsx scripts/inventory-plan.ts",
     "migrate": "payload migrate --force-accept-warning",
     "check": "npm run test && npm run typecheck && npm run build",
@@ -16,22 +20,19 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.84.1",
-    "@payloadcms/next": "^3.84.1",
-    "@payloadcms/richtext-lexical": "^3.84.1",
-    "@payloadcms/storage-s3": "^3.84.1",
+    "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
+    "@payloadcms/storage-s3": "3.88.0",
     "graphql": "^16.14.0",
-    "next": "~15.5.18",
-    "payload": "^3.84.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "16.3.3",
+    "payload": "3.88.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "resend": "^6.12.4",
-    "sharp": "^0.34.5",
+    "sharp": "0.35.4",
     "stripe": "^22.1.1",
     "zustand": "^5.0.13"
-  },
-  "overrides": {
-    "next": "$next"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
