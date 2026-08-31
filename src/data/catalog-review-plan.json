@@ -1,0 +1,820 @@
+{
+  "schema_version": 1,
+  "plan_id": "payload-media-audit-2026-08-31",
+  "generated_at": "2026-08-31",
+  "source": "Live Payload public API read-only scan plus visual grouping",
+  "expected_live_baseline": {
+    "media": 266,
+    "products": 7,
+    "variants": 4,
+    "categories": 1
+  },
+  "required_category": {
+    "id": 1,
+    "name": "Test Category",
+    "slug": "test-category"
+  },
+  "draft_defaults": {
+    "status": "draft",
+    "featured": false,
+    "basePrice": 0,
+    "inventoryCount": null
+  },
+  "products": [
+    {
+      "key": "harem-jumpsuit",
+      "slug": "catalog-review-harem-jumpsuit",
+      "name": "Flowing Harem Jumpsuit",
+      "description": "Flowing harem-leg jumpsuit photographed in teal, crimson, and rust paisley groups. Final pattern names, sizing, fabric, care, and price require review.",
+      "confidence": "medium",
+      "existing_product_ids": [
+        5
+      ],
+      "notes": [
+        "The teal and crimson groups are already represented as variants on product 5.",
+        "The rust paisley group appears to share the silhouette; confirm before treating it as a third color/pattern variant."
+      ],
+      "all_media_ids": [
+        1,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        3,
+        14,
+        15,
+        30,
+        31,
+        32,
+        260,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        259,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "selected_media": [
+        {
+          "id": 260,
+          "filename": "Facetune_11-06-2024-18-51-27.jpeg",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 1,
+          "filename": "IMG_0025.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 10,
+          "filename": "IMG_0034.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 30,
+          "filename": "IMG_0055.JPG",
+          "alt": "Detail view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 259,
+          "filename": "Facetune_11-06-2024-18-50-44.jpeg",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 16,
+          "filename": "IMG_0040.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 27,
+          "filename": "IMG_0052.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 29,
+          "filename": "IMG_0054.JPG",
+          "alt": "Detail view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 63,
+          "filename": "IMG_0088.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 65,
+          "filename": "IMG_0090.JPG",
+          "alt": "Studio view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 69,
+          "filename": "IMG_0094.JPG",
+          "alt": "Detail view of Flowing Harem Jumpsuit"
+        },
+        {
+          "id": 70,
+          "filename": "IMG_0095.JPG",
+          "alt": "Detail view of Flowing Harem Jumpsuit"
+        }
+      ]
+    },
+    {
+      "key": "olive-pattern-harem-pants",
+      "slug": "catalog-review-olive-pattern-harem-pants",
+      "name": "Olive Pattern Harem Pants",
+      "description": "Relaxed olive-pattern harem pants with a dropped, tapered silhouette. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [
+        3
+      ],
+      "notes": [
+        "Existing product 3 appears to be this photo group but still uses the test name \u201cTest-Pants.\u201d"
+      ],
+      "all_media_ids": [
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40
+      ],
+      "selected_media": [
+        {
+          "id": 33,
+          "filename": "IMG_0058.JPG",
+          "alt": "Studio view of Olive Pattern Harem Pants"
+        },
+        {
+          "id": 34,
+          "filename": "IMG_0059.JPG",
+          "alt": "Studio view of Olive Pattern Harem Pants"
+        },
+        {
+          "id": 37,
+          "filename": "IMG_0062.JPG",
+          "alt": "Studio view of Olive Pattern Harem Pants"
+        },
+        {
+          "id": 39,
+          "filename": "IMG_0064.JPG",
+          "alt": "Studio view of Olive Pattern Harem Pants"
+        },
+        {
+          "id": 40,
+          "filename": "IMG_0065.JPG",
+          "alt": "Detail view of Olive Pattern Harem Pants"
+        }
+      ]
+    },
+    {
+      "key": "neutral-pattern-maxi-dress",
+      "slug": "catalog-review-neutral-pattern-maxi-dress",
+      "name": "Neutral Pattern Maxi Dress",
+      "description": "Full-length neutral-toned patterned dress with a flowing silhouette and short sleeves. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "selected_media": [
+        {
+          "id": 41,
+          "filename": "IMG_0066.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 43,
+          "filename": "IMG_0068.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 45,
+          "filename": "IMG_0070.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 47,
+          "filename": "IMG_0072.JPG",
+          "alt": "Detail view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 50,
+          "filename": "IMG_0075.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 55,
+          "filename": "IMG_0080.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        },
+        {
+          "id": 61,
+          "filename": "IMG_0086.JPG",
+          "alt": "Studio view of Neutral Pattern Maxi Dress"
+        }
+      ]
+    },
+    {
+      "key": "patchwork-long-sleeve-shirt",
+      "slug": "catalog-review-patchwork-long-sleeve-shirt",
+      "name": "Patchwork Long-Sleeve Shirt",
+      "description": "Long-sleeve patchwork shirt with multicolor panels and mushroom motifs. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [
+        7
+      ],
+      "notes": [
+        "Existing product 7 already represents this photo group."
+      ],
+      "all_media_ids": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        265,
+        266
+      ],
+      "selected_media": [
+        {
+          "id": 71,
+          "filename": "IMG_0096.JPG",
+          "alt": "Studio view of Patchwork Long-Sleeve Shirt"
+        },
+        {
+          "id": 72,
+          "filename": "IMG_0097.JPG",
+          "alt": "Studio view of Patchwork Long-Sleeve Shirt"
+        },
+        {
+          "id": 74,
+          "filename": "IMG_0099.JPG",
+          "alt": "Studio view of Patchwork Long-Sleeve Shirt"
+        },
+        {
+          "id": 76,
+          "filename": "IMG_0101.JPG",
+          "alt": "Detail view of Patchwork Long-Sleeve Shirt"
+        },
+        {
+          "id": 265,
+          "filename": "IMG_2698.jpeg",
+          "alt": "Studio view of Patchwork Long-Sleeve Shirt"
+        },
+        {
+          "id": 266,
+          "filename": "IMG_2699.jpeg",
+          "alt": "Detail view of Patchwork Long-Sleeve Shirt"
+        }
+      ]
+    },
+    {
+      "key": "mushroom-print-harem-pants",
+      "slug": "catalog-review-mushroom-print-harem-pants",
+      "name": "Mushroom Print Harem Pants",
+      "description": "Relaxed harem pants with mushroom print, photographed in green and blue color groups. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [
+        6
+      ],
+      "notes": [
+        "Green and blue are already represented as variants on product 6."
+      ],
+      "all_media_ids": [
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        261,
+        262,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        263,
+        264
+      ],
+      "selected_media": [
+        {
+          "id": 261,
+          "filename": "IMG_2700.jpeg",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 78,
+          "filename": "IMG_0103.JPG",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 81,
+          "filename": "IMG_0106.JPG",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 83,
+          "filename": "IMG_0108.JPG",
+          "alt": "Detail view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 146,
+          "filename": "IMG_0171.JPG",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 148,
+          "filename": "IMG_0173.JPG",
+          "alt": "Detail view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 263,
+          "filename": "IMG_2709.jpeg",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 92,
+          "filename": "IMG_0117.JPG",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 95,
+          "filename": "IMG_0120.JPG",
+          "alt": "Studio view of Mushroom Print Harem Pants"
+        },
+        {
+          "id": 97,
+          "filename": "IMG_0122.JPG",
+          "alt": "Detail view of Mushroom Print Harem Pants"
+        }
+      ]
+    },
+    {
+      "key": "patchwork-knee-shorts",
+      "slug": "catalog-review-patchwork-knee-shorts",
+      "name": "Patchwork Knee-Length Shorts",
+      "description": "Knee-length patchwork shorts with multicolor panels and mushroom motifs. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [
+        4
+      ],
+      "notes": [
+        "Existing product 4 appears to be this photo group but still uses the test name \u201cTest-Shorts.\u201d"
+      ],
+      "all_media_ids": [
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91
+      ],
+      "selected_media": [
+        {
+          "id": 85,
+          "filename": "IMG_0110.JPG",
+          "alt": "Studio view of Patchwork Knee-Length Shorts"
+        },
+        {
+          "id": 86,
+          "filename": "IMG_0111.JPG",
+          "alt": "Studio view of Patchwork Knee-Length Shorts"
+        },
+        {
+          "id": 88,
+          "filename": "IMG_0113.JPG",
+          "alt": "Studio view of Patchwork Knee-Length Shorts"
+        },
+        {
+          "id": 90,
+          "filename": "IMG_0115.JPG",
+          "alt": "Studio view of Patchwork Knee-Length Shorts"
+        },
+        {
+          "id": 91,
+          "filename": "IMG_0116.JPG",
+          "alt": "Detail view of Patchwork Knee-Length Shorts"
+        }
+      ]
+    },
+    {
+      "key": "pink-paisley-wrap-dress",
+      "slug": "catalog-review-pink-paisley-wrap-dress",
+      "name": "Pink Paisley Wrap Dress",
+      "description": "Pink paisley long-sleeve wrap-style dress with a tied waist. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [
+        1
+      ],
+      "notes": [
+        "Existing product 1 appears to be this photo group but still uses the test name \u201cTest Romper.\u201d"
+      ],
+      "all_media_ids": [
+        98,
+        99,
+        100,
+        2,
+        102,
+        103
+      ],
+      "selected_media": [
+        {
+          "id": 98,
+          "filename": "IMG_0123.JPG",
+          "alt": "Studio view of Pink Paisley Wrap Dress"
+        },
+        {
+          "id": 99,
+          "filename": "IMG_0124.JPG",
+          "alt": "Studio view of Pink Paisley Wrap Dress"
+        },
+        {
+          "id": 100,
+          "filename": "IMG_0125.JPG",
+          "alt": "Studio view of Pink Paisley Wrap Dress"
+        },
+        {
+          "id": 2,
+          "filename": "IMG_0126.JPG",
+          "alt": "Studio view of Pink Paisley Wrap Dress"
+        },
+        {
+          "id": 102,
+          "filename": "IMG_0127.JPG",
+          "alt": "Studio view of Pink Paisley Wrap Dress"
+        },
+        {
+          "id": 103,
+          "filename": "IMG_0128.JPG",
+          "alt": "Detail view of Pink Paisley Wrap Dress"
+        }
+      ]
+    },
+    {
+      "key": "patchwork-short-sleeve-shirt",
+      "slug": "catalog-review-patchwork-short-sleeve-shirt",
+      "name": "Patchwork Short-Sleeve Shirt",
+      "description": "Short-sleeve patchwork shirt with multicolor panels and mushroom motifs. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        104,
+        105,
+        106,
+        107
+      ],
+      "selected_media": [
+        {
+          "id": 104,
+          "filename": "IMG_0129.JPG",
+          "alt": "Studio view of Patchwork Short-Sleeve Shirt"
+        },
+        {
+          "id": 105,
+          "filename": "IMG_0130.JPG",
+          "alt": "Studio view of Patchwork Short-Sleeve Shirt"
+        },
+        {
+          "id": 106,
+          "filename": "IMG_0131.JPG",
+          "alt": "Studio view of Patchwork Short-Sleeve Shirt"
+        },
+        {
+          "id": 107,
+          "filename": "IMG_0132.JPG",
+          "alt": "Detail view of Patchwork Short-Sleeve Shirt"
+        }
+      ]
+    },
+    {
+      "key": "green-paisley-harem-pants",
+      "slug": "catalog-review-green-paisley-harem-pants",
+      "name": "Green Paisley Harem Pants",
+      "description": "Relaxed green paisley harem pants. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        116,
+        117,
+        118,
+        119,
+        120,
+        127,
+        128,
+        129,
+        130,
+        131
+      ],
+      "selected_media": [
+        {
+          "id": 116,
+          "filename": "IMG_0141.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 117,
+          "filename": "IMG_0142.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 119,
+          "filename": "IMG_0144.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 120,
+          "filename": "IMG_0145.JPG",
+          "alt": "Detail view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 127,
+          "filename": "IMG_0152.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 130,
+          "filename": "IMG_0155.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        },
+        {
+          "id": 131,
+          "filename": "IMG_0156.JPG",
+          "alt": "Studio view of Green Paisley Harem Pants"
+        }
+      ]
+    },
+    {
+      "key": "pink-paisley-shorts",
+      "slug": "catalog-review-pink-paisley-shorts",
+      "name": "Pink Paisley Knee-Length Shorts",
+      "description": "Pink paisley knee-length shorts. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        139,
+        140,
+        141,
+        142
+      ],
+      "selected_media": [
+        {
+          "id": 121,
+          "filename": "IMG_0146.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 122,
+          "filename": "IMG_0147.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 124,
+          "filename": "IMG_0149.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 125,
+          "filename": "IMG_0150.JPG",
+          "alt": "Detail view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 126,
+          "filename": "IMG_0151.JPG",
+          "alt": "Detail view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 139,
+          "filename": "IMG_0164.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 141,
+          "filename": "IMG_0166.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        },
+        {
+          "id": 142,
+          "filename": "IMG_0167.JPG",
+          "alt": "Studio view of Pink Paisley Knee-Length Shorts"
+        }
+      ]
+    },
+    {
+      "key": "green-paisley-midi-dress",
+      "slug": "catalog-review-green-paisley-midi-dress",
+      "name": "Green Paisley Midi Dress",
+      "description": "Loose green paisley midi dress with elbow-length sleeves. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138
+      ],
+      "selected_media": [
+        {
+          "id": 132,
+          "filename": "IMG_0157.JPG",
+          "alt": "Studio view of Green Paisley Midi Dress"
+        },
+        {
+          "id": 133,
+          "filename": "IMG_0158.JPG",
+          "alt": "Studio view of Green Paisley Midi Dress"
+        },
+        {
+          "id": 135,
+          "filename": "IMG_0160.JPG",
+          "alt": "Studio view of Green Paisley Midi Dress"
+        },
+        {
+          "id": 136,
+          "filename": "IMG_0161.JPG",
+          "alt": "Studio view of Green Paisley Midi Dress"
+        },
+        {
+          "id": 138,
+          "filename": "IMG_0163.JPG",
+          "alt": "Detail view of Green Paisley Midi Dress"
+        }
+      ]
+    },
+    {
+      "key": "green-button-front-dress",
+      "slug": "catalog-review-green-button-front-dress",
+      "name": "Green Button-Front Midi Dress",
+      "description": "Green button-front midi dress with a loose silhouette. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        149,
+        150,
+        151,
+        152
+      ],
+      "selected_media": [
+        {
+          "id": 149,
+          "filename": "IMG_0174.JPG",
+          "alt": "Studio view of Green Button-Front Midi Dress"
+        },
+        {
+          "id": 150,
+          "filename": "IMG_0175.JPG",
+          "alt": "Studio view of Green Button-Front Midi Dress"
+        },
+        {
+          "id": 151,
+          "filename": "IMG_0176.JPG",
+          "alt": "Studio view of Green Button-Front Midi Dress"
+        },
+        {
+          "id": 152,
+          "filename": "IMG_0177.JPG",
+          "alt": "Studio view of Green Button-Front Midi Dress"
+        }
+      ]
+    },
+    {
+      "key": "rose-tiered-maxi-dress",
+      "slug": "catalog-review-rose-tiered-maxi-dress",
+      "name": "Rose Tiered Maxi Dress",
+      "description": "Rose-toned tiered maxi dress with a contrasting darker upper panel. Final sizing, fabric, care, and price require review.",
+      "confidence": "high",
+      "existing_product_ids": [],
+      "notes": [],
+      "all_media_ids": [
+        153,
+        154,
+        155,
+        156,
+        157,
+        158
+      ],
+      "selected_media": [
+        {
+          "id": 153,
+          "filename": "IMG_0178.JPG",
+          "alt": "Studio view of Rose Tiered Maxi Dress"
+        },
+        {
+          "id": 154,
+          "filename": "IMG_0179.JPG",
+          "alt": "Studio view of Rose Tiered Maxi Dress"
+        },
+        {
+          "id": 156,
+          "filename": "IMG_0181.JPG",
+          "alt": "Studio view of Rose Tiered Maxi Dress"
+        },
+        {
+          "id": 157,
+          "filename": "IMG_0182.JPG",
+          "alt": "Studio view of Rose Tiered Maxi Dress"
+        },
+        {
+          "id": 158,
+          "filename": "IMG_0183.JPG",
+          "alt": "Detail view of Rose Tiered Maxi Dress"
+        }
+      ]
+    }
+  ],
+  "excluded_media": {
+    "lifestyle": {
+      "count": 100,
+      "filename_range": "IMG_0184.JPG\u2013IMG_0283.JPG"
+    },
+    "broken": [
+      {
+        "id": 13,
+        "filename": "IMG_0037-1.JPG"
+      },
+      {
+        "id": 101,
+        "filename": "IMG_0126-1.JPG"
+      }
+    ]
+  },
+  "publication_policy": "Never publish automatically. Drafts require Neal review and confirmed price, inventory, size, material, and care data."
+}
