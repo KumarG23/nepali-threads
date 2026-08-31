@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-# Block commits whose message starts with "[local]", "[kimi]", or "[gemini]"
-# if the staged diff touches any path matching .localllm-blocklist. The
-# local LLM is the intended author of these commits, and blocklisted
-# paths are reserved for the senior reviewer (Claude Code).
+# Legacy guard for historical commits whose message starts with "[local]",
+# "[kimi]", or "[gemini]". New work follows AGENTS.md and does not use
+# those prefixes. Keep this hook only so old branches cannot accidentally
+# cross their original protected-path boundary.
 #
 # Blocklist pattern syntax:
 #   foo/bar.ts   — exact file

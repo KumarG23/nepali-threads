@@ -4,15 +4,16 @@
 // and returns the hosted-checkout URL. The browser may send product IDs,
 // variant IDs, and quantities only; all Stripe line item names/prices/images
 // are fetched server-side from Payload so the client cannot tamper with
-// checkout price. When a variantId is present, the variant's price override
-// + inventory + sku are used; otherwise we fall back to the product's
-// basePrice. Out-of-stock variants are rejected with a 409.
+// checkout price. Products with variants require a valid variantId; genuine
+// base products fall back to basePrice + optional product-level inventory.
+// Out-of-stock products and variants are rejected with a 409.
 
 import { getPayload } from "payload";
 import { NextResponse } from "next/server";
 
 import config from "@payload-config";
 import type { Product, ProductVariant } from "@/payload-types";
+import { isInventoryAvailable } from "@/lib/inventory-availability";
 import { getStripe } from "@/lib/stripe/client";
 
 export const dynamic = "force-dynamic";
@@ -190,28 +191,44 @@ async function resolveCheckoutItems(
         .filter((id): id is number => typeof id === "number")
     ),
   ];
+  const baseProductIds = [
+    ...new Set(
+      items
+        .filter((item) => item.variantId === undefined)
+        .map((item) => item.productId)
+    ),
+  ];
 
-  const [productResult, variantResult] = await Promise.all([
-    payload.find({
-      collection: "products",
-      where: {
-        and: [
-          { id: { in: productIds } },
-          { status: { equals: "published" } },
-        ],
-      },
-      limit: productIds.length,
-      depth: 1,
-    }),
-    variantIds.length > 0
-      ? payload.find({
+  const [productResult, variantResult, ...variantPresenceResults] =
+    await Promise.all([
+      payload.find({
+        collection: "products",
+        where: {
+          and: [
+            { id: { in: productIds } },
+            { status: { equals: "published" } },
+          ],
+        },
+        limit: productIds.length,
+        depth: 1,
+      }),
+      variantIds.length > 0
+        ? payload.find({
+            collection: "product-variants",
+            where: { id: { in: variantIds } },
+            limit: variantIds.length,
+            depth: 1,
+          })
+        : Promise.resolve({ docs: [] as ProductVariant[] }),
+      ...baseProductIds.map((productId) =>
+        payload.find({
           collection: "product-variants",
-          where: { id: { in: variantIds } },
-          limit: variantIds.length,
-          depth: 1,
+          where: { product: { equals: productId } },
+          limit: 1,
+          depth: 0,
         })
-      : Promise.resolve({ docs: [] as ProductVariant[] }),
-  ]);
+      ),
+    ]);
 
   const productsById = new Map(
     (productResult.docs as Product[]).map((product) => [product.id, product])
@@ -221,6 +238,11 @@ async function resolveCheckoutItems(
       variant.id,
       variant,
     ])
+  );
+  const productsWithVariants = new Set(
+    baseProductIds.filter(
+      (_productId, index) => variantPresenceResults[index].docs.length > 0
+    )
   );
 
   return items.map((item) => {
@@ -263,9 +285,16 @@ async function resolveCheckoutItems(
       };
     }
 
-    // Plain product (no variant chosen). If the product has variants in
-    // the DB but the client didn't pick one, that's the storefront's bug
-    // — but we tolerate it here and just use basePrice + product images.
+    if (productsWithVariants.has(product.id)) {
+      throw new Error("variant_required");
+    }
+
+    // Plain product (no variants exist). Product-level inventory is optional;
+    // when it is tracked, reject carts that exceed the current count.
+    if (!isInventoryAvailable(product.inventoryCount, item.quantity)) {
+      throw new Error("product_out_of_stock");
+    }
+
     const image = firstProductImage(product);
     return {
       productId: product.id,
@@ -291,11 +320,22 @@ function errorResponseFor(message: string) {
         status: 400,
         error: "Cart contains an invalid variant reference.",
       };
+    case "variant_required":
+      return {
+        status: 400,
+        error:
+          "Please select an available variant for each item with size or color options.",
+      };
     case "variant_out_of_stock":
       return {
         status: 409,
         error:
           "One or more items in your cart are out of stock at the size or color you picked.",
+      };
+    case "product_out_of_stock":
+      return {
+        status: 409,
+        error: "One or more items in your cart are out of stock.",
       };
     case "unavailable_variant":
     case "unavailable_product":

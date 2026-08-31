@@ -29,7 +29,7 @@ The collections you'll use most:
 
 Collections you probably won't need:
 
-- **Product Variants** — for products with sizes or colors (most of ours are one-size, so usually skip)
+- **Product Variants** — the size/color/SKU stock rows behind products. Until the Inventory Workspace is built, Neal/Jarvis will handle bulk setup and corrections.
 - **Customers** — people who've made accounts on the site. View-only for support; don't edit.
 - **Users** — admin accounts (yours, Neal's, dad's if added). Neal manages this.
 - **Gift Cards / Gift Card Redemptions** — Phase 3, not in use yet.
@@ -65,8 +65,9 @@ On the Content tab:
 - **Description**: rich text editor. Two or three sentences about the piece — material, how it's made, who made it, fit. This is what customers read on the product page.
 - **Category**: pick from the dropdown. (If the category isn't there, go back to step 1.)
 - **Price (USD)**: enter the dollar amount, e.g. `145`. The system stores it as integer cents (`14500`) behind the scenes — you don't need to think about that.
+- **Inventory**: the count for a product with no size/color variants. Leave it blank only if inventory is intentionally not tracked. If the product has variants, the stock count belongs on each variant instead.
 - **Photos**: drag in multiple photos. Re-order by dragging. **The first photo is the main one** — it's what shows on the product card in the shop and on the cart. The rest show up in the gallery on the product page (customers swipe between them).
-- **Show on homepage**: check this if you want this product featured on the homepage. (Currently the homepage shows hardcoded sample products — this checkbox isn't wired up yet. Talk to Neal if you want it.)
+- **Show on homepage**: check this if you want this product featured on the homepage.
 - **Status**: most important field.
   - **Draft** = product is hidden from the storefront. Use this while you're still editing. **New products default to Draft so nothing accidentally goes live.**
   - **Published** = product is visible at `/shop`, `/categories/...`, and `/products/...`.

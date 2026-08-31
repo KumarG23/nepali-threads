@@ -1,0 +1,4 @@
+product_key,product_name,category,base_price_usd,description,material,care,tags,sku,size,color,swatch_hex,quantity,photo_paths,featured,status,notes
+romper-crimson,One Size Romper,Rompers,60.00,One-size romper with belt.,silk,Hand wash cold,"one-size,festival",,One size fits most,Crimson,#9B2C2C,3,"photos/romper-crimson-front.jpg;photos/romper-crimson-back.jpg",yes,draft,Example row — replace or delete
+mushroom-pants,Mushroom Print Pants,Bottoms,75.00,Relaxed printed pants.,cotton,Cold wash,"relaxed,printed",,Medium,Grass Green,#4F772D,2,photos/mushroom-pants-green.jpg,yes,draft,Repeat product_key for another size/color
+mushroom-pants,Mushroom Print Pants,Bottoms,75.00,Relaxed printed pants.,cotton,Cold wash,"relaxed,printed",,XL,Blue Jean Blue,#4A6A8A,3,photos/mushroom-pants-blue.jpg,yes,draft,
