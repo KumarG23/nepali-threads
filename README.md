@@ -8,7 +8,7 @@ Admin: <https://nepali-threads.com/admin>
 
 ## Stack
 
-- Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4
+- Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4
 - Payload CMS 3 with Neon Postgres
 - Cloudflare R2 media storage
 - Stripe Checkout and webhooks
@@ -19,7 +19,7 @@ Admin: <https://nepali-threads.com/admin>
 
 Requirements:
 
-- Node.js 20 or newer
+- Node.js 20.18.1 or newer
 - npm
 - A development Postgres database
 - Development credentials for Payload, R2, Stripe, and Resend as needed
@@ -41,6 +41,7 @@ Never commit `.env.local` or production data.
 
 ```bash
 npm ls next payload @payloadcms/next --depth=0
+npm run audit:production
 npm test
 npm run typecheck
 npm run build
@@ -49,6 +50,8 @@ npm run check
 ```
 
 Focused tests cover the inventory intake planner, product-level inventory availability, variant-required checkout behavior, footer route honesty, the empty-shop state, and the no-fake-newsletter fallback. Checkout still needs broader integration coverage; webhook, order, auth, and email paths remain largely untested beyond typechecking and the production build.
+
+The production dependency gate fails on high or critical advisories. Lower vendor-owned findings and their reachability decisions are tracked in [`docs/dependency-security.md`](./docs/dependency-security.md); do not use `npm audit fix --force` as a substitute for reviewing the framework compatibility set.
 
 ## Inventory intake dry run
 
