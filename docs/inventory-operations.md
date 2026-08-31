@@ -61,6 +61,30 @@ It:
 
 The guarded write/import stage is deliberately separate. It will add SKU assignment, Payload upsert, approval, read-back, and reconciliation after the actual starting catalog/count is supplied.
 
+### Existing-media catalog review
+
+The first catalog-review stage uses the photos already stored in Payload rather than asking for another upload:
+
+- A read-only production scan found 266 media records.
+- 164 product photos are accounted for in 13 conservative product groups.
+- 100 lifestyle/group photos (`IMG_0184.JPG` through `IMG_0283.JPG`) remain unassigned for later brand/collection use.
+- Two duplicate media records point to missing source files and are excluded.
+- The reviewed machine plan lives in `src/data/catalog-review-plan.json`.
+
+An admin-only page at `/catalog-review` previews the proposed groups and offers one guarded action: create missing review drafts. The endpoint:
+
+- requires a signed-in `admin` or `super-admin` and a same-origin POST,
+- verifies the expected category and every selected media ID/filename before opening a transaction,
+- writes only deterministic `catalog-review-*` product slugs,
+- forces `status: draft`, `featured: false`, `$0` placeholder price, and untracked product inventory,
+- creates no variants, SKUs, stock counts, or published products,
+- applies the 13-product batch in one database transaction,
+- rolls back the batch if any later write or transactional read-back fails,
+- reads all draft records back after commit,
+- is replay-safe: a second run preserves the same 13 draft records and any edits instead of creating duplicates or resetting fields.
+
+This is a visual grouping/review tool, not inventory truth. Neal still supplies prices, actual sizes/colors, physical counts, material/care facts, and keep/archive decisions before any draft can become sellable.
+
 ## Data model recommendation
 
 ### Product = the listing/story
