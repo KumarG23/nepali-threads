@@ -1,7 +1,6 @@
-# Paths the local LLM is not allowed to edit.
-# Mirrors the "Files you must NOT touch" section in LLM_PROJECT_CONTEXT.md.
-# Enforced by .husky/commit-msg: commits whose first message line starts
-# with "[local]" cannot touch any of these paths.
+# Legacy protected-path list retained for historical [local]/[kimi]/[gemini]
+# commits. New work is governed by AGENTS.md and does not use those prefixes.
+# Treat these entries as high-risk paths requiring deliberate review.
 #
 # Pattern syntax:
 #   foo/bar.ts   — exact file

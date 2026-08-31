@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nepali Threads
 
-## Getting Started
+Family-run ecommerce storefront for handmade Nepali clothing.
 
-First, run the development server:
+Production: <https://nepali-threads.com>
+
+Admin: <https://nepali-threads.com/admin>
+
+## Stack
+
+- Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4
+- Payload CMS 3 with Neon Postgres
+- Cloudflare R2 media storage
+- Stripe Checkout and webhooks
+- Resend transactional email
+- Vercel hosting
+
+## Local setup
+
+Requirements:
+
+- Node.js 20 or newer
+- npm
+- A development Postgres database
+- Development credentials for Payload, R2, Stripe, and Resend as needed
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Storefront: <http://localhost:3000>
+- Admin: <http://localhost:3000/admin>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Never commit `.env.local` or production data.
 
-## Learn More
+## Verification
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm ls next payload @payloadcms/next --depth=0
+npm run typecheck
+npm run build
+# equivalent combined gate
+npm run check
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The repository does not yet have a sufficient automated test suite. Checkout, webhook, order, inventory, auth, and email work needs focused tests or executable smoke checks in addition to the build.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Payload schema changes
 
-## Deploy on Vercel
+Create schema changes in collection/global config, then regenerate artifacts:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx payload generate:types
+npx payload generate:importmap
+npm run migrate
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`npm run migrate` targets the database in `DATABASE_URL`. Confirm the environment before running it. Production migrations require an explicit deployment plan and recovery path.
+
+Do not hand-edit:
+
+- `src/payload-types.ts`
+- `src/app/(payload)/admin/importMap.js`
+- generated migration JSON
+
+## Repository map
+
+```text
+src/app/(frontend)/     Public storefront
+src/app/(payload)/      Payload admin and API shell
+src/app/api/            Checkout and Stripe webhooks
+src/collections/        Payload collections
+src/components/admin/   Payload-only UI
+src/components/storefront/ Storefront compositions
+src/components/ui/      Storefront primitives
+src/lib/                Orders, inventory, Stripe, email, formatting
+migrations/             Payload/Postgres migrations
+docs/                   Operator docs and project review
+tasks/                  Historical implementation records
+```
+
+## Operating model
+
+`AGENTS.md` is the canonical engineering manual. Jarvis / GPT-5.6 Sol owns implementation, review, testing, migrations, and release gating; Neal owns business truth and launch approval. The former Kimi/Claude/local-LLM workflow is retired.
+
+Start here:
+
+- [`AGENTS.md`](./AGENTS.md)
+- [`docs/project-review.md`](./docs/project-review.md)
+- [`docs/inventory-operations.md`](./docs/inventory-operations.md)
+- [`docs/admin-guide.md`](./docs/admin-guide.md)
+
+## Current status
+
+The storefront, Payload admin, product/variant catalog, cart, Stripe checkout, order persistence, inventory decrement, customer accounts, and transactional emails exist. The site is deployed, but it is not launch-ready: the live catalog still contains test data, several public links return 404, the newsletter uses a fake-success stub, inventory has two competing paths, and automated coverage is thin.
+
+See `docs/project-review.md` for the evidence and prioritized path to launch.
