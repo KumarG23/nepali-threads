@@ -37,6 +37,30 @@ Jarvis can then:
 
 No one should manually create 40 variant documents unless they enjoy administrative punishment.
 
+### Dry-run automation available now
+
+The repository includes a guarded first stage:
+
+```bash
+npm run inventory:plan -- docs/inventory-intake-template.csv
+```
+
+It:
+
+- parses quoted CSV fields and semicolon-separated photo paths,
+- converts dollar prices to integer cents,
+- groups rows by `product_key`,
+- totals products, sellable rows, and on-hand quantity,
+- reports rows that still need SKUs,
+- rejects empty batches, missing required columns, and missing product metadata,
+- rejects malformed CSV structure, malformed prices, blank/non-integer/negative counts, ambiguous featured flags, bad statuses, and duplicate provided SKUs,
+- caps prices at $100,000.00 per item and quantities at 1,000,000 units per row,
+- rejects conflicting product name, category, price, description, material, care, tags, featured, or status values under one `product_key`,
+- prints a reviewable JSON plan,
+- performs no Payload or production writes.
+
+The guarded write/import stage is deliberately separate. It will add SKU assignment, Payload upsert, approval, read-back, and reconciliation after the actual starting catalog/count is supplied.
+
 ## Data model recommendation
 
 ### Product = the listing/story
@@ -195,21 +219,35 @@ For every inventory session:
 
 Sales decrement automatically. Refunds, returns, damaged items, and manual corrections must never be silently folded together.
 
-## Sister involvement without making her the critical path
+## Optional family help without making it a dependency
 
-Give her a bounded role that takes minutes:
+If anyone wants to help, keep the role bounded to work that takes minutes:
 
 - photograph new items,
 - count by labeled SKU,
 - flag sold/damaged/restocked pieces,
-- approve product names/colors if she wants to participate.
+- approve product names/colors if they care to participate.
 
-Do not make the project depend on her learning Payload, writing descriptions, or managing variants. If she participates more, good. If not, the operating system still works.
+Do not make the project depend on anyone learning Payload, writing descriptions, or managing variants. If help appears, good. If not, the operating system still works.
+
+## Minimum input required from Neal
+
+For each real inventory batch, Neal only needs to provide the business truth that software cannot infer:
+
+- which physical pieces actually exist and whether each is sellable, damaged, sold, or discontinued,
+- a rough name or photo grouping for each product,
+- size/color and physical quantity per sellable piece or group,
+- intended selling price,
+- the folder or phone export containing the product photos.
+
+Neal does **not** need to assign SKUs, normalize color names, choose technical categories, write polished descriptions, create Payload records, or reconcile the write-back. Jarvis owns that machinery and returns a dry-run diff for approval before any live mutation.
+
+Separate launch-policy decisions still require Neal's business call: shipping rates/regions, the return window and exclusions, the public support email, and the legal business identity used on policy pages.
 
 ## Build sequence
 
 1. Clean and reconcile the existing live catalog.
-2. Build an idempotent CSV validator/importer with dry-run and read-back.
+2. Finish the idempotent importer/read-back stage. The CSV validator and dry-run planner are implemented.
 3. Normalize all sellable stock to variants/SKUs.
 4. Build the Inventory Workspace MVP.
 5. Add printable barcode/QR labels.

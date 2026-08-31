@@ -5,13 +5,12 @@
 // variant was tied to the line), and reduces the inventoryCount by the
 // quantity sold.
 //
-// Concurrency model: Phase C gates inventory at /api/checkout — if a
-// variant has inventory < quantity, the checkout session is refused
-// (HTTP 409). That closes the obvious window. There's still a
-// theoretical race where two buyers create checkout sessions at the
+// Concurrency model: checkout gates tracked product and variant inventory — if
+// a row has inventory < quantity, the checkout session is refused (HTTP 409).
+// A theoretical race remains where two buyers create checkout sessions at the
 // same moment, both pass the gate, both pay, and the second decrement
 // would push us below zero. We clamp at zero and log a structured
-// warning so sister can spot it in Vercel logs and refund manually.
+// warning so the operator can spot it in Vercel logs and refund manually.
 // Hard-locking inventory across the Stripe payment window is out of
 // scope for launch — this is the simplest correct behavior for a low-
 // volume artisan shop.
@@ -158,7 +157,7 @@ async function decrementProductIfTracked({
 
     const current = product.inventoryCount;
     // Products with NULL inventoryCount are "not tracked" — leave them
-    // alone. Sister has explicitly opted out of inventory for those.
+    // alone. The operator has explicitly opted out of inventory for those.
     if (typeof current !== "number") {
       return "skipped";
     }

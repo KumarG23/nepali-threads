@@ -21,27 +21,11 @@ export function Footer({
   const linkColumns = [
     {
       title: "Shop",
-      links: [
-        { label: "New arrivals", href: "/shop?filter=new" },
-        { label: "All products", href: "/shop" },
-        { label: "Gift cards", href: "/gift-cards" },
-      ],
-    },
-    {
-      title: "Customer",
-      links: [
-        { label: "Shipping", href: "/shipping" },
-        { label: "Returns", href: "/returns" },
-        { label: "Contact", href: "/contact" },
-      ],
+      links: [{ label: "All products", href: "/shop" }],
     },
     {
       title: "About",
-      links: [
-        { label: "Our story", href: "/about" },
-        { label: "Sustainability", href: "/sustainability" },
-        { label: "Press", href: "/press" },
-      ],
+      links: [{ label: "Our story", href: "/about" }],
     },
     {
       title: "Connect",
@@ -76,7 +60,7 @@ export function Footer({
         </div>
 
         {/* Middle row: link columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-16 border-t border-neutral-cream/10 pt-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-16 border-t border-neutral-cream/10 pt-12">
           {linkColumns.map((column) => (
             <div key={column.title}>
               <h3 className="font-sans text-small font-semibold uppercase tracking-wide text-neutral-cream/90 mb-4">
@@ -99,24 +83,10 @@ export function Footer({
         </div>
 
         {/* Bottom row: sign-off */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-neutral-cream/10 pt-8">
+        <div className="border-t border-neutral-cream/10 pt-8">
           <p className="font-sans text-small text-neutral-cream/60">
             © {new Date().getFullYear()} Nepali Threads. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <Link
-              href="/privacy"
-              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/terms"
-              className="font-sans text-small text-neutral-cream/60 hover:text-neutral-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-400 focus-visible:ring-offset-2 rounded"
-            >
-              Terms
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

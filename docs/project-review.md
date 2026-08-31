@@ -23,11 +23,24 @@ The fastest path is not “finish every planned feature.” It is:
 - Main branch is clean and `0 ahead / 0 behind` its upstream after fetch.
 - Application code is roughly 3,862 TS/TSX lines plus generated/migration JSON and 49 Markdown files after this review.
 - `npm ls next payload @payloadcms/next --depth=0` resolves the expected versions.
-- `npm run check` passes: TypeScript compilation and the Next.js production build both completed successfully. The build emits a workspace-root warning because `/home/neal/package-lock.json` and the repo lockfile both exist; this is non-fatal but should be cleaned up with `outputFileTracingRoot` or workspace hygiene.
+- `npm run check` passes: the focused Node test suite, TypeScript compilation, and the Next.js production build all completed successfully. The build emits a workspace-root warning because `/home/neal/package-lock.json` and the repo lockfile both exist; this is non-fatal but should be cleaned up with `outputFileTracingRoot` or workspace hygiene.
+- `npm audit --omit=dev` reports 26 known dependency advisories in the current lockfile: 19 high and 7 moderate, with none critical. Direct affected packages include Next 15.5.18, Payload 3.84.1, and Sharp 0.34.5; additional findings are transitive. This needs a coordinated, separately tested stack upgrade rather than `npm audit fix --force`: the audit fixer currently trips over the `$next` override, and Payload 3.88.0's supported peer ranges move the secure path toward Next 16.2.6+ rather than a blind patch bump.
 - No GitHub Actions workflows or recent CI runs were found.
 - `README.md` was still the stock Next.js README before this review.
 - The old 621-line `CLAUDE.md` described retired Kimi/Gemini/Claude routing and stale phase status.
 - There is one old stash containing package-file churn and several stale remote branches. Most named fix/task branches are already ancestors of `main`; `local/TASK-038-039-account-polish` still has three unique old commits and needs a deliberate salvage-or-delete decision.
+
+### Remediation prepared on the review branch
+
+The audit facts above describe `main` and the live site at the snapshot time. The review branch now also contains:
+
+- a tested, no-write CSV inventory validator and grouped dry-run planner,
+- product-level stock gating plus server-side variant selection enforcement while the variant-only migration is pending,
+- removal of unavailable footer links and the fake newsletter success path,
+- a Node test script included in `npm run check`,
+- GitHub Actions CI for clean install, tests, typecheck, and build.
+
+None of these branch changes mutate production catalog data or deploy themselves.
 
 ## Verified live state
 

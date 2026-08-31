@@ -36,8 +36,7 @@ export default async function ShopPage() {
           The shop is quiet for the moment.
         </h1>
         <p className="font-sans text-body text-neutral-ink/70">
-          We&apos;re between collections. Check back soon — or sign up below to
-          be the first to know when new pieces land.
+          We&apos;re between collections. Check back soon for new pieces.
         </p>
       </article>
     );

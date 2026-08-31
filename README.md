@@ -41,13 +41,26 @@ Never commit `.env.local` or production data.
 
 ```bash
 npm ls next payload @payloadcms/next --depth=0
+npm test
 npm run typecheck
 npm run build
 # equivalent combined gate
 npm run check
 ```
 
-The repository does not yet have a sufficient automated test suite. Checkout, webhook, order, inventory, auth, and email work needs focused tests or executable smoke checks in addition to the build.
+Focused tests cover the inventory intake planner, product-level inventory availability, variant-required checkout behavior, footer route honesty, the empty-shop state, and the no-fake-newsletter fallback. Checkout still needs broader integration coverage; webhook, order, auth, and email paths remain largely untested beyond typechecking and the production build.
+
+## Inventory intake dry run
+
+Fill or copy `docs/inventory-intake-template.csv`, then validate and group it without touching Payload:
+
+```bash
+npm run inventory:plan -- docs/inventory-intake-template.csv
+```
+
+The command rejects empty batches, malformed CSV structure, malformed prices/counts, missing required metadata, ambiguous featured values, duplicate provided SKUs, unsupported statuses, and conflicting parent-product values under one `product_key`. Prices are capped at $100,000.00 per item and quantities at 1,000,000 units per row. It prints a JSON plan with product, SKU, and quantity totals. Blank SKUs are reported for later assignment; no live records are created or updated.
+
+See [`docs/inventory-operations.md`](./docs/inventory-operations.md) for the Neal + Jarvis handoff and the guarded import/read-back roadmap.
 
 ## Payload schema changes
 
@@ -96,6 +109,6 @@ Start here:
 
 ## Current status
 
-The storefront, Payload admin, product/variant catalog, cart, Stripe checkout, order persistence, inventory decrement, customer accounts, and transactional emails exist. The site is deployed, but it is not launch-ready: the live catalog still contains test data, several public links return 404, the newsletter uses a fake-success stub, inventory has two competing paths, and automated coverage is thin.
+The storefront, Payload admin, product/variant catalog, cart, Stripe checkout, order persistence, inventory decrement, customer accounts, and transactional emails exist. The site is deployed, but it is not launch-ready: the live catalog still contains test data, required policy content does not exist yet, inventory has two competing paths, and high-risk integration coverage remains thin. The footer hides unavailable routes and no longer presents a fake newsletter success path when no real subscriber handler exists.
 
 See `docs/project-review.md` for the evidence and prioritized path to launch.
