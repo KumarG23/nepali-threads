@@ -1,28 +1,87 @@
 # Nepali Threads
 
-Family-run ecommerce storefront for handmade Nepali clothing.
+A production-oriented ecommerce platform for a family-run Nepali clothing business.
 
-Production: <https://nepali-threads.com>
+**Live preview:** [nepali-threads.com](https://nepali-threads.com)
 
-Admin: <https://nepali-threads.com/admin>
+Nepali Threads began as my full-stack capstone project and was later rebuilt into the current platform as my family and I moved toward operating it as a real business. The current version is a modern TypeScript/Next.js application with content management, payments, inventory, customer accounts, object storage, transactional email, testing, and production deployment workflows.
 
 ## Stack
 
-- Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4
-- Payload CMS 3 with Neon Postgres
-- Cloudflare R2 media storage
-- Stripe Checkout and webhooks
-- Resend transactional email
-- Vercel hosting
+- **Next.js 16 + React 19 + TypeScript**
+- **Payload CMS 3**
+- **Neon PostgreSQL**
+- **Stripe Checkout + webhooks**
+- **Cloudflare R2** object storage
+- **Resend** transactional email
+- **Vercel** hosting
+- Tailwind CSS
 
-## Local setup
+## Product capabilities
+
+- Product and variant catalog managed through Payload CMS
+- Customer accounts and authentication
+- Shopping cart and checkout flows
+- Stripe payment processing and webhook handling
+- Persistent orders and inventory updates
+- Product media stored in Cloudflare R2
+- Transactional customer and administrative email
+- Inventory-intake validation tooling
+- Automated tests, type checking, dependency checks, and production builds
+
+## From capstone to production platform
+
+The original Nepali Threads project was built during my full-time software development program using React, Django, Python, REST APIs, and Stripe. That version is preserved separately in my GitHub history and represents my earlier, primarily hand-coded full-stack work.
+
+The current application is a ground-up modernization designed around the requirements of an actual family business: easier catalog administration, production payments, inventory operations, customer communication, deployment safety, and maintainability.
+
+That progression—from learning full-stack development conventionally to directing a larger AI-assisted production project—is one of the reasons I keep both generations of the application visible.
+
+## Engineering highlights
+
+### Payments and order lifecycle
+
+Stripe Checkout handles payment collection while webhook processing drives server-side order persistence and inventory behavior. Secrets and webhook credentials are supplied through environment configuration and are not stored in the repository.
+
+### Content and inventory
+
+Payload CMS provides the administrative interface and application data model. Inventory tooling includes a dry-run planner that validates incoming CSV data before any live records are changed.
+
+```bash
+npm run inventory:plan -- docs/inventory-intake-template.csv
+```
+
+### Production verification
+
+The project has a combined verification gate covering tests, type checking, dependency review, and production builds.
+
+```bash
+npm run check
+```
+
+Individual verification commands are also available:
+
+```bash
+npm test
+npm run typecheck
+npm run audit:production
+npm run build
+```
+
+## Development approach
+
+The current platform is developed with an **AI-assisted engineering workflow**. I own the business requirements, product direction, architecture decisions, validation, release approval, and operational context. AI tools accelerate implementation, testing, review, debugging, and documentation.
+
+The original capstone remains useful evidence of my pre-AI development foundation; this repository demonstrates how I now use that foundation with modern engineering tools to build larger systems faster.
+
+## Local development
 
 Requirements:
 
-- Node.js 20.18.1 or newer
+- Node.js 20.18.1+
 - npm
-- A development Postgres database
-- Development credentials for Payload, R2, Stripe, and Resend as needed
+- Development PostgreSQL database
+- Development credentials for external services as required
 
 ```bash
 npm install
@@ -30,88 +89,23 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open:
-
-- Storefront: <http://localhost:3000>
-- Admin: <http://localhost:3000/admin>
-
-Never commit `.env.local` or production data.
-
-## Verification
-
-```bash
-npm ls next payload @payloadcms/next --depth=0
-npm run audit:production
-npm test
-npm run typecheck
-npm run build
-# equivalent combined gate
-npm run check
-```
-
-Focused tests cover the inventory intake planner, product-level inventory availability, variant-required checkout behavior, footer route honesty, the empty-shop state, and the no-fake-newsletter fallback. Checkout still needs broader integration coverage; webhook, order, auth, and email paths remain largely untested beyond typechecking and the production build.
-
-The production dependency gate fails on high or critical advisories. Lower vendor-owned findings and their reachability decisions are tracked in [`docs/dependency-security.md`](./docs/dependency-security.md); do not use `npm audit fix --force` as a substitute for reviewing the framework compatibility set.
-
-## Inventory intake dry run
-
-Fill or copy `docs/inventory-intake-template.csv`, then validate and group it without touching Payload:
-
-```bash
-npm run inventory:plan -- docs/inventory-intake-template.csv
-```
-
-The command rejects empty batches, malformed CSV structure, malformed prices/counts, missing required metadata, ambiguous featured values, duplicate provided SKUs, unsupported statuses, and conflicting parent-product values under one `product_key`. Prices are capped at $100,000.00 per item and quantities at 1,000,000 units per row. It prints a JSON plan with product, SKU, and quantity totals. Blank SKUs are reported for later assignment; no live records are created or updated.
-
-See [`docs/inventory-operations.md`](./docs/inventory-operations.md) for the Neal + Jarvis handoff and the guarded import/read-back roadmap.
-
-## Payload schema changes
-
-Create schema changes in collection/global config, then regenerate artifacts:
-
-```bash
-npx payload generate:types
-npx payload generate:importmap
-npm run migrate
-```
-
-`npm run migrate` targets the database in `DATABASE_URL`. Confirm the environment before running it. Production migrations require an explicit deployment plan and recovery path.
-
-Do not hand-edit:
-
-- `src/payload-types.ts`
-- `src/app/(payload)/admin/importMap.js`
-- generated migration JSON
+The committed `.env.example` contains placeholders only. Production credentials and data should never be committed.
 
 ## Repository map
 
 ```text
-src/app/(frontend)/     Public storefront
-src/app/(payload)/      Payload admin and API shell
-src/app/api/            Checkout and Stripe webhooks
-src/collections/        Payload collections
-src/components/admin/   Payload-only UI
-src/components/storefront/ Storefront compositions
-src/components/ui/      Storefront primitives
-src/lib/                Orders, inventory, Stripe, email, formatting
-migrations/             Payload/Postgres migrations
-docs/                   Operator docs and project review
-tasks/                  Historical implementation records
+src/app/(frontend)/         Public storefront
+src/app/(payload)/          Payload admin and API shell
+src/app/api/                Checkout and Stripe webhooks
+src/collections/            Payload collections
+src/components/storefront/  Storefront components
+src/lib/                    Orders, inventory, Stripe, email, formatting
+migrations/                 Payload/Postgres migrations
+docs/                       Operations and project documentation
 ```
-
-## Operating model
-
-`AGENTS.md` is the canonical engineering manual. Jarvis / GPT-5.6 Sol owns implementation, review, testing, migrations, and release gating; Neal owns business truth and launch approval. The former Kimi/Claude/local-LLM workflow is retired.
-
-Start here:
-
-- [`AGENTS.md`](./AGENTS.md)
-- [`docs/project-review.md`](./docs/project-review.md)
-- [`docs/inventory-operations.md`](./docs/inventory-operations.md)
-- [`docs/admin-guide.md`](./docs/admin-guide.md)
 
 ## Current status
 
-The storefront, Payload admin, product/variant catalog, cart, Stripe checkout, order persistence, inventory decrement, customer accounts, and transactional emails exist. The site is deployed, but it is not launch-ready: the live catalog still contains test data, required policy content does not exist yet, inventory has two competing paths, and high-risk integration coverage remains thin. The footer hides unavailable routes and no longer presents a fake newsletter success path when no real subscriber handler exists.
+The platform is deployed but still being prepared for public launch. Core storefront, catalog, cart, checkout, order, inventory, account, and email functionality exists; remaining work is focused on production catalog/content, policy content, operational cleanup, and broader integration coverage.
 
-See `docs/project-review.md` for the evidence and prioritized path to launch.
+This repository intentionally documents unfinished areas rather than presenting the application as more production-ready than it is.
